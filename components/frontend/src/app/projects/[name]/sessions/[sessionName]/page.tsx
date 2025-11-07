@@ -1,15 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import Link from "next/link";
 import { formatDistanceToNow, format } from "date-fns";
-import { ArrowLeft, Square, Trash2, Copy, Play, MoreVertical, Bot, Loader2, FolderTree, AlertCircle, Sprout, CheckCircle2, GitBranch, Edit, Info, RefreshCw, Folder, FileText } from "lucide-react";
+import { Square, Trash2, Copy, Play, MoreVertical, Bot, Loader2, FolderTree, AlertCircle, Sprout, CheckCircle2, GitBranch, Edit, Info, RefreshCw, Folder, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // Custom components
-import OverviewTab from "@/components/session/OverviewTab";
 import MessagesTab from "@/components/session/MessagesTab";
-import WorkspaceTab from "@/components/session/WorkspaceTab";
 import ResultsTab from "@/components/session/ResultsTab";
 import { EditRepositoriesDialog } from "../../rfe/[id]/edit-repositories-dialog";
 
@@ -28,7 +25,6 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { PageHeader } from "@/components/page-header";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { GitHubConnectionCard } from "@/components/github-connection-card";
-import type { FileTreeNode } from "@/components/file-tree";
 
 import type { SessionMessage } from "@/types";
 import type { MessageObject, ToolUseMessages, ToolUseBlock, ToolResultBlock } from "@/types/agentic-session";
@@ -42,10 +38,6 @@ import {
   useDeleteSession,
   useSendChatMessage,
   useSendControlMessage,
-  usePushSessionToGitHub,
-  useAbandonSessionChanges,
-  useWorkspaceList,
-  useWriteWorkspaceFile,
   useAllSessionGitHubDiffs,
   useSessionK8sResources,
   useContinueSession,
@@ -57,12 +49,10 @@ import {
   useCreateRfeWorkflow,
   useGitHubStatus,
   useWorkflowArtifacts,
-  workspaceKeys,
   rfeKeys,
 } from "@/services/queries";
 import { useSecretsValues } from "@/services/queries/use-secrets";
 import { successToast, errorToast } from "@/hooks/use-toast";
-import { workspaceApi } from "@/services/api";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function ProjectSessionDetailPage({
@@ -77,7 +67,6 @@ export default function ProjectSessionDetailPage({
   const [promptExpanded, setPromptExpanded] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [backHref, setBackHref] = useState<string | null>(null);
-  const [backLabel, setBackLabel] = useState<string | null>(null);
   const [contentPodSpawning, setContentPodSpawning] = useState(false);
   const [contentPodReady, setContentPodReady] = useState(false);
   const [contentPodError, setContentPodError] = useState<string | null>(null);
@@ -100,7 +89,6 @@ export default function ProjectSessionDetailPage({
       try {
         const url = new URL(window.location.href);
         setBackHref(url.searchParams.get("backHref"));
-        setBackLabel(url.searchParams.get("backLabel"));
       } catch {}
     });
   }, [params]);
@@ -128,9 +116,6 @@ export default function ProjectSessionDetailPage({
   const continueMutation = useContinueSession();
   const sendChatMutation = useSendChatMessage();
   const sendControlMutation = useSendControlMessage();
-  const pushToGitHubMutation = usePushSessionToGitHub();
-  const abandonChangesMutation = useAbandonSessionChanges();
-  const writeWorkspaceFileMutation = useWriteWorkspaceFile();
   
   // Get RFE workflow ID from session if this is an RFE session
   const rfeWorkflowId = session?.metadata?.labels?.['rfe-workflow'];
@@ -153,56 +138,7 @@ export default function ProjectSessionDetailPage({
     rfeWorkflowId || ''
   );
 
-  // Workspace state
-  const [wsSelectedPath, setWsSelectedPath] = useState<string | undefined>();
-  const [wsFileContent, setWsFileContent] = useState<string>("");
-  const [wsTree, setWsTree] = useState<FileTreeNode[]>([]);
-  
-  // Helper to convert absolute workspace path to relative path
-  const toRelativePath = useCallback((absPath: string): string => {
-    // Strip /sessions/<sessionName>/workspace/ prefix to get relative path
-    const prefix = `/sessions/${sessionName}/workspace/`;
-    if (absPath.startsWith(prefix)) {
-      return absPath.substring(prefix.length);
-    }
-    // If no prefix, assume it's already relative
-    return absPath;
-  }, [sessionName]);
-  
-  // Fetch workspace root directory
-  const { data: workspaceItems = [], isLoading: wsLoading } = useWorkspaceList(
-    projectName,
-    sessionName,
-    undefined,
-    { enabled: true }
-  );
-
-  // Update tree when workspace items change
-  useEffect(() => {
-    if (workspaceItems.length > 0) {
-      const treeNodes: FileTreeNode[] = workspaceItems.map(item => ({
-        name: item.name,
-        path: item.path, // Keep the original path for display/reference
-        type: item.isDir ? 'folder' : 'file',
-        expanded: false,
-        sizeKb: item.isDir ? undefined : item.size / 1024,
-      }));
-      setWsTree(treeNodes);
-    }
-  }, [workspaceItems]);
-
-  const wsUnavailable = false;
-
-  // Handler to refresh workspace
-  const handleRefreshWorkspace = useCallback(async () => {
-    // Invalidate all workspace queries to force fresh fetch
-    await queryClient.invalidateQueries({
-      queryKey: workspaceKeys.lists(),
-    });
-    await queryClient.invalidateQueries({
-      queryKey: workspaceKeys.files(),
-    });
-  }, [queryClient]);
+  // Workspace state - currently unused but kept for future feature
 
   // Handler to refresh spec repository artifacts
   const handleRefreshArtifacts = useCallback(async () => {
@@ -214,9 +150,6 @@ export default function ProjectSessionDetailPage({
     await refetchArtifacts();
   }, [queryClient, projectName, rfeWorkflowId, refetchArtifacts]);
 
-  // GitHub diff state
-  const [busyRepo, setBusyRepo] = useState<Record<number, 'push' | 'abandon' | null>>({});
-  
   // Helper to derive repo folder from URL
   const deriveRepoFolderFromUrl = useCallback((url: string): string => {
     try {
@@ -233,26 +166,16 @@ export default function ProjectSessionDetailPage({
   }, []);
 
   // Fetch all repo diffs using React Query hook
-  const { data: diffTotals = {}, refetch: refetchDiffs } = useAllSessionGitHubDiffs(
+  useAllSessionGitHubDiffs(
     projectName,
     sessionName,
     session?.spec?.repos as Array<{ input: { url: string; branch: string }; output?: { url: string; branch: string } }> | undefined,
     deriveRepoFolderFromUrl,
-    { 
+    {
       enabled: !!session?.spec?.repos,
-      sessionPhase: session?.status?.phase 
+      sessionPhase: session?.status?.phase
     }
   );
-
-  // Handler to refresh diffs by invalidating cache first
-  const handleRefreshDiff = useCallback(async () => {
-    // Invalidate all diff queries to force fresh fetch
-    await queryClient.invalidateQueries({
-      queryKey: workspaceKeys.diffs(),
-    });
-    // Then refetch
-    await refetchDiffs();
-  }, [queryClient, refetchDiffs]);
 
   // Adapter: convert SessionMessage to StreamMessage
   type RawWireMessage = SessionMessage & { payload?: unknown; timestamp?: string };
@@ -692,134 +615,13 @@ export default function ProjectSessionDetailPage({
     }
   };
 
-  // Workspace operations - using React Query with queryClient for imperative fetching
-  const onWsToggle = useCallback(async (node: FileTreeNode) => {
-    if (node.type !== "folder") return;
-    
-    // Toggle expansion
-    node.expanded = !node.expanded;
-    
-    // If expanding, fetch children using React Query
-    if (node.expanded && !node.children) {
-      try {
-        // Convert to relative path for API call
-        const relativePath = toRelativePath(node.path);
-        const items = await queryClient.fetchQuery({
-          queryKey: workspaceKeys.list(projectName, sessionName, relativePath),
-          queryFn: () => workspaceApi.listWorkspace(projectName, sessionName, relativePath),
-        });
-        node.children = items.map(item => ({
-          name: item.name,
-          path: item.path,
-          type: item.isDir ? 'folder' : 'file',
-          expanded: false,
-          sizeKb: item.isDir ? undefined : item.size / 1024,
-        }));
-      } catch {
-        errorToast('Failed to load folder contents');
-      }
-    }
-    
-    setWsTree([...wsTree]);
-  }, [wsTree, projectName, sessionName, queryClient, toRelativePath]);
-
-  const onWsSelect = useCallback(async (node: FileTreeNode) => {
-    if (node.type !== "file") return;
-    setWsSelectedPath(node.path);
-    
-    try {
-      // Convert to relative path for API call
-      const relativePath = toRelativePath(node.path);
-      const content = await queryClient.fetchQuery({
-        queryKey: workspaceKeys.file(projectName, sessionName, relativePath),
-        queryFn: () => workspaceApi.readWorkspaceFile(projectName, sessionName, relativePath),
-      });
-      setWsFileContent(content);
-    } catch {
-      errorToast('Failed to read file');
-    }
-  }, [projectName, sessionName, queryClient, toRelativePath]);
-
-  const writeWsFile = useCallback(async (path: string, content: string) => {
-    // Convert to relative path for API call
-    const relativePath = toRelativePath(path);
-    writeWorkspaceFileMutation.mutate(
-      { projectName, sessionName, path: relativePath, content },
-      {
-        onSuccess: () => {
-          setWsFileContent(content);
-          successToast('File saved successfully');
-        },
-        onError: (err) => {
-          errorToast(err instanceof Error ? err.message : 'Failed to save file');
-        },
-      }
-    );
-  }, [projectName, sessionName, writeWorkspaceFileMutation, toRelativePath]);
-
-  const buildGithubCompareUrl = useCallback((inputUrl: string, inputBranch?: string, outputUrl?: string, outputBranch?: string): string | null => {
-    if (!inputUrl || !outputUrl) return null;
-    const parseOwner = (url: string): { owner: string; repo: string } | null => {
-      try {
-        const cleaned = url.replace(/^git@([^:]+):/, "https://$1/");
-        const u = new URL(cleaned);
-        const segs = u.pathname.split('/').filter(Boolean);
-        if (segs.length >= 2) return { owner: segs[segs.length-2], repo: segs[segs.length-1].replace(/\.git$/i, "") };
-        return null;
-      } catch { return null; }
-    };
-    const inOrg = parseOwner(inputUrl);
-    const outOrg = parseOwner(outputUrl);
-    if (!inOrg || !outOrg) return null;
-    const base = inputBranch && inputBranch.trim() ? inputBranch : 'main';
-    const head = outputBranch && outputBranch.trim() ? outputBranch : null;
-    if (!head) return null;
-    return `https://github.com/${inOrg.owner}/${inOrg.repo}/compare/${encodeURIComponent(base)}...${encodeURIComponent(outOrg.owner + ':' + head)}`;
-  }, []);
-
-
-  const latestLiveMessage = useMemo(() => {
-    if (messages.length === 0) return null;
-    return messages[messages.length - 1];
-  }, [messages]);
+  // Workspace operations removed - currently unused
 
   const durationMs = useMemo(() => {
     const start = session?.status?.startTime ? new Date(session.status.startTime).getTime() : undefined;
     const end = session?.status?.completionTime ? new Date(session.status.completionTime).getTime() : Date.now();
     return start ? Math.max(0, end - start) : undefined;
   }, [session?.status?.startTime, session?.status?.completionTime]);
-
-  const subagentStats = useMemo(() => {
-    const agentCounts: Record<string, number> = {};
-
-    // Parse streamMessages for tool_use_messages with subagent_type
-    for (const msg of streamMessages) {
-      if (msg.type === 'tool_use_messages') {
-        const toolUseBlock = msg.toolUseBlock;
-
-        // Only count Task tool uses (not other tools like Bash, Read, Write)
-        if (toolUseBlock?.name !== 'Task') continue;
-
-        // Type-safe extraction with runtime checks
-        if (toolUseBlock.input && typeof toolUseBlock.input === 'object') {
-          const inputData = toolUseBlock.input as Record<string, unknown>;
-          const subagentType = inputData.subagent_type;
-
-          if (typeof subagentType === 'string') {
-            agentCounts[subagentType] = (agentCounts[subagentType] || 0) + 1;
-          }
-        }
-      }
-    }
-
-    const orderedTypes = Object.keys(agentCounts).sort();
-
-    return {
-      uniqueCount: orderedTypes.length,
-      orderedTypes,
-      counts: agentCounts,
-    };
-  }, [streamMessages]);
 
   // Loading state - also check if params are loaded
   if (isLoading || !projectName || !sessionName) {
@@ -1046,7 +848,7 @@ export default function ProjectSessionDetailPage({
 
                       {(rfeWorkflow?.umbrellaRepo || (rfeWorkflow?.supportingRepos || []).length > 0) && (
                         <div className="space-y-1">
-                          {rfeWorkflow.umbrellaRepo && (
+                          {rfeWorkflow?.umbrellaRepo && (
                             <div className="text-sm space-y-1">
                               <div>
                                 <span className="font-medium">Spec Repo:</span> {rfeWorkflow.umbrellaRepo.url}
@@ -1061,7 +863,7 @@ export default function ProjectSessionDetailPage({
                               )}
                             </div>
                           )}
-                          {(rfeWorkflow.supportingRepos || []).map(
+                          {(rfeWorkflow?.supportingRepos || []).map(
                             (r: { url: string; branch?: string }, i: number) => (
                               <div key={i} className="text-sm space-y-1">
                                 <div>
@@ -1070,7 +872,7 @@ export default function ProjectSessionDetailPage({
                                 {r.branch && (
                                   <div className="ml-4 text-muted-foreground">
                                     Base branch: <code className="text-xs bg-muted px-1 py-0.5 rounded">{r.branch}</code>
-                                    {rfeWorkflow.branchName && (
+                                    {rfeWorkflow?.branchName && (
                                       <span> → Feature branch <code className="text-xs bg-blue-50 text-blue-700 px-1 py-0.5 rounded">{rfeWorkflow.branchName}</code> {isSeeded ? 'set up' : 'will be set up'}</span>
                                     )}
                                   </div>

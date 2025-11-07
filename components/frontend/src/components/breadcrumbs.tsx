@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ChevronRight, Home } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type BreadcrumbItem = {
@@ -26,7 +26,6 @@ export type BreadcrumbsProps = {
 export function Breadcrumbs({
   items,
   className,
-  showHome = true,
   separator = <ChevronRight className="h-4 w-4" />,
 }: BreadcrumbsProps) {
   // Temporarily hiding Home from breadcrumbs

@@ -169,6 +169,9 @@ export type CreateAgenticSessionRequest = {
 	autoPushOnComplete?: boolean;
 	labels?: Record<string, string>;
 	annotations?: Record<string, string>;
+	// Bring Your Own Key
+	anthropicApiKey?: string;
+	saveApiKeyForFuture?: boolean;
 };
 
 // New types for RFE workflows

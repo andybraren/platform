@@ -90,11 +90,11 @@ export function CreateSessionDialog({
     const request: CreateAgenticSessionRequest = {
       interactive: true,
       prompt: "Interactive session - prompt will be provided by user",
+      timeout: values.timeout,
       llmSettings: {
         model: values.model,
         temperature: values.temperature,
         maxTokens: values.maxTokens,
-        timeout: values.timeout,
       },
     };
 

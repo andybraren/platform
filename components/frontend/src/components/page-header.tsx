@@ -7,8 +7,8 @@ import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 type PageHeaderProps = {
-  title: string;
-  description?: string;
+  title: string | ReactNode;
+  description?: string | ReactNode;
   actions?: ReactNode;
   className?: string;
 };
@@ -24,7 +24,7 @@ export function PageHeader({
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
         {description && (
-          <p className="text-muted-foreground">{description}</p>
+          <div className="text-muted-foreground">{description}</div>
         )}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
