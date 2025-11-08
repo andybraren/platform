@@ -46,6 +46,7 @@ import {
   useCreateRfeWorkflow,
   useGitHubStatus,
   useWorkflowArtifacts,
+  useUpdateSessionDisplayName,
   rfeKeys,
 } from "@/services/queries";
 import { useWorkspaceList } from "@/services/queries/use-workspace";
@@ -139,6 +140,7 @@ export default function ProjectSessionDetailPage({
   const continueMutation = useContinueSession();
   const sendChatMutation = useSendChatMessage();
   const sendControlMutation = useSendControlMessage();
+  const updateDisplayNameMutation = useUpdateSessionDisplayName();
   
   // Get RFE workflow ID from session if this is an RFE session
   const rfeWorkflowId = session?.metadata?.labels?.['rfe-workflow'];
@@ -787,6 +789,24 @@ export default function ProjectSessionDetailPage({
     );
   };
 
+  const handleUpdateDisplayName = async (newName: string) => {
+    return new Promise<void>((resolve, reject) => {
+      updateDisplayNameMutation.mutate(
+        { projectName, sessionName, displayName: newName },
+        {
+          onSuccess: () => {
+            successToast("Session name updated successfully");
+            resolve();
+          },
+          onError: (err) => {
+            errorToast(err instanceof Error ? err.message : "Failed to update session name");
+            reject(err);
+          },
+        }
+      );
+    });
+  };
+
   const handleSeedWorkflow = useCallback(async () => {
     if (!rfeWorkflowId) return;
     return new Promise<void>((resolve, reject) => {
@@ -1023,6 +1043,8 @@ export default function ProjectSessionDetailPage({
             onRefresh={refetchSession}
             onStop={handleStop}
             onDelete={handleDelete}
+            onUpdateDisplayName={handleUpdateDisplayName}
+            isUpdatingName={updateDisplayNameMutation.isPending}
             durationMs={durationMs}
             k8sResources={k8sResources}
             messageCount={messages.length}

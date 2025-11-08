@@ -923,6 +923,17 @@ func PatchSession(c *gin.Context) {
 		}
 	}
 
+	// Apply patch to spec fields
+	if specPatch, ok := patch["spec"].(map[string]interface{}); ok {
+		if item.Object["spec"] == nil {
+			item.Object["spec"] = make(map[string]interface{})
+		}
+		spec := item.Object["spec"].(map[string]interface{})
+		for k, v := range specPatch {
+			spec[k] = v
+		}
+	}
+
 	// Update the resource
 	updated, err := reqDyn.Resource(gvr).Namespace(project).Update(context.TODO(), item, v1.UpdateOptions{})
 	if err != nil {

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, Square, Trash2, Copy, MoreVertical, Info } from 'lucide-react';
 import { CloneSessionDialog } from '@/components/clone-session-dialog';
 import { SessionDetailsModal } from '@/components/session-details-modal';
+import { EditableSessionName } from '@/components/editable-session-name';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { AgenticSession } from '@/types/agentic-session';
 import { getPhaseColor } from '@/utils/session-helpers';
@@ -18,6 +19,8 @@ type SessionHeaderProps = {
   onRefresh: () => void;
   onStop: () => void;
   onDelete: () => void;
+  onUpdateDisplayName?: (newName: string) => Promise<void>;
+  isUpdatingName?: boolean;
   durationMs?: number;
   k8sResources?: {
     pvcName?: string;
@@ -33,6 +36,8 @@ export function SessionHeader({
   onRefresh,
   onStop,
   onDelete,
+  onUpdateDisplayName,
+  isUpdatingName = false,
   durationMs,
   k8sResources,
   messageCount,
@@ -53,12 +58,24 @@ export function SessionHeader({
     <>
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-semibold flex items-center gap-2">
-            <span>{session.spec.displayName || session.metadata.name}</span>
+          <div className="flex items-center gap-2 mb-2">
+            {onUpdateDisplayName ? (
+              <EditableSessionName
+                currentName={session.spec.displayName || session.metadata.name}
+                metadataName={session.metadata.name}
+                onSave={onUpdateDisplayName}
+                isSaving={isUpdatingName}
+                className="text-2xl font-semibold"
+              />
+            ) : (
+              <h1 className="text-2xl font-semibold">
+                {session.spec.displayName || session.metadata.name}
+              </h1>
+            )}
             <Badge className={getPhaseColor(phase)}>
               {phase}
             </Badge>
-          </h1>
+          </div>
           {session.spec.displayName && (
             <div className="text-sm text-gray-500">{session.metadata.name}</div>
           )}

@@ -316,3 +316,34 @@ export function useContinueSession() {
     },
   });
 }
+
+/**
+ * Hook to update session display name (uses PATCH endpoint)
+ */
+export function useUpdateSessionDisplayName() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      projectName,
+      sessionName,
+      displayName,
+    }: {
+      projectName: string;
+      sessionName: string;
+      displayName: string;
+    }) => sessionsApi.updateSessionDisplayName(projectName, sessionName, displayName),
+    onSuccess: (_data, { projectName, sessionName }) => {
+      // Invalidate session details to refetch
+      queryClient.invalidateQueries({
+        queryKey: sessionKeys.detail(projectName, sessionName),
+        refetchType: 'all',
+      });
+      // Invalidate list to update the session name in the list view
+      queryClient.invalidateQueries({
+        queryKey: sessionKeys.list(projectName),
+        refetchType: 'all',
+      });
+    },
+  });
+}
