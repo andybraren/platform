@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { formatDistanceToNow, format } from "date-fns";
-import { Square, Trash2, Copy, Play, MoreVertical, Bot, Loader2, FolderTree, AlertCircle, Sprout, CheckCircle2, GitBranch, Edit, RefreshCw, Folder, FileText, Info } from "lucide-react";
+import { Play, Bot, Loader2, FolderTree, AlertCircle, Sprout, CheckCircle2, GitBranch, Edit, RefreshCw, Folder, FileText, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // Custom components
@@ -20,16 +19,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CloneSessionDialog } from "@/components/clone-session-dialog";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { PageHeader } from "@/components/page-header";
 import { SessionHeader } from "./session-header";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { GitHubConnectionCard } from "@/components/github-connection-card";
 
 import type { SessionMessage } from "@/types";
 import type { MessageObject, ToolUseMessages, ToolUseBlock, ToolResultBlock } from "@/types/agentic-session";
-import { getPhaseColor } from "@/utils/session-helpers";
 
 // React Query hooks
 import {
@@ -68,7 +64,6 @@ export default function ProjectSessionDetailPage({
   const queryClient = useQueryClient();
   const [projectName, setProjectName] = useState<string>("");
   const [sessionName, setSessionName] = useState<string>("");
-  const [promptExpanded, setPromptExpanded] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [backHref, setBackHref] = useState<string | null>(null);
   const [contentPodSpawning, setContentPodSpawning] = useState(false);
