@@ -590,15 +590,15 @@ export default function ProjectSessionDetailPage({
     workflowManagement.handleWorkflowChange(value, ootbWorkflows, () =>
       setCustomWorkflowDialogOpen(true),
     );
+    // Automatically trigger activation after workflow change
+    setTimeout(() => {
+      workflowManagement.activateWorkflow();
+    }, 100);
   };
 
   // Handle workflow selection from welcome experience
   const handleWelcomeWorkflowSelect = (workflowId: string) => {
     handleWorkflowChange(workflowId);
-    // Trigger activation immediately
-    setTimeout(() => {
-      workflowManagement.activateWorkflow();
-    }, 100);
   };
 
   // Convert AG-UI messages to display format with hierarchical tool call rendering
@@ -1316,12 +1316,12 @@ export default function ProjectSessionDetailPage({
                       sessionPhase={session?.status?.phase}
                       activeWorkflow={workflowManagement.activeWorkflow}
                       selectedWorkflow={workflowManagement.selectedWorkflow}
-                      pendingWorkflow={workflowManagement.pendingWorkflow}
                       workflowActivating={workflowManagement.workflowActivating}
                       ootbWorkflows={ootbWorkflows}
                       isExpanded={openAccordionItems.includes("workflows")}
                       onWorkflowChange={handleWorkflowChange}
                       onActivateWorkflow={workflowManagement.activateWorkflow}
+                      onCommandClick={handleCommandClick}
                       onResume={handleContinue}
                     />
 

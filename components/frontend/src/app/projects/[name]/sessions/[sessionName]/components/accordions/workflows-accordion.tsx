@@ -1,23 +1,26 @@
 "use client";
 
-import { Play, Loader2, Workflow, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { Play, Loader2, Workflow, ChevronDown, ChevronRight, Info, AlertCircle } from "lucide-react";
 import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { WorkflowConfig } from "../../lib/types";
 
 type WorkflowsAccordionProps = {
   sessionPhase?: string;
   activeWorkflow: string | null;
   selectedWorkflow: string;
-  pendingWorkflow: WorkflowConfig | null;
+  pendingWorkflow?: string | null;
   workflowActivating: boolean;
   ootbWorkflows: WorkflowConfig[];
   isExpanded: boolean;
   onWorkflowChange: (value: string) => void;
   onActivateWorkflow: () => void;
+  onCommandClick?: (slashCommand: string) => void;
   onResume?: () => void;
 };
 
@@ -31,6 +34,7 @@ export function WorkflowsAccordion({
   isExpanded,
   onWorkflowChange,
   onActivateWorkflow,
+  onCommandClick,
   onResume,
 }: WorkflowsAccordionProps) {
   const isSessionStopped = sessionPhase === 'Stopped' || sessionPhase === 'Error' || sessionPhase === 'Completed';
@@ -130,31 +134,6 @@ export function WorkflowsAccordion({
               </Select>
             </div>
             
-            {/* Show workflow preview and activate/switch button */}
-            {!workflowActivating && pendingWorkflow && (
-              <Alert variant="info">
-                <AlertCircle />
-                <AlertTitle>
-                  Reload required
-                </AlertTitle>
-                <AlertDescription>
-                  <div className="space-y-2 mt-2">
-                    <p className="text-sm">
-                      Please reload this chat session to switch to the new workflow. Your chat history will be preserved.
-                    </p>
-                    <Button 
-                      onClick={onActivateWorkflow}
-                      className="w-full mt-3"
-                      size="sm"
-                    >
-                      <Play className="mr-2 h-4 w-4" />
-                      Load new workflow
-                    </Button>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            )}
-            
             {/* Show active workflow info */}
             {activeWorkflow && !workflowActivating && (
               <></>
@@ -165,4 +144,3 @@ export function WorkflowsAccordion({
     </AccordionItem>
   );
 }
-
