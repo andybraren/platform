@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   Loader2,
   FolderTree,
@@ -122,24 +122,22 @@ const COMPLETION_DELAY_MS = 2000;
 /**
  * Type guard to check if a message is a completed ToolUseMessages with result.
  * Extracted for testability and proper validation.
- * Uses proper type narrowing without unsafe assertions.
+ * Uses proper type assertion and validation.
  */
 function isCompletedToolUseMessage(msg: MessageObject | ToolUseMessages): msg is ToolUseMessages {
   if (msg.type !== "tool_use_messages") {
     return false;
   }
   
-  // Type narrowing without assertion - check resultBlock exists before accessing
-  if (!("resultBlock" in msg)) {
-    return false;
-  }
+  // Cast to ToolUseMessages for proper type checking
+  const toolMsg = msg as ToolUseMessages;
   
-  // Now TypeScript knows msg has resultBlock property
-  if (!msg.resultBlock || typeof msg.resultBlock !== "object") {
-    return false;
-  }
-  
-  return msg.resultBlock.content !== null;
+  return (
+    toolMsg.resultBlock !== undefined &&
+    toolMsg.resultBlock !== null &&
+    typeof toolMsg.resultBlock === "object" &&
+    toolMsg.resultBlock.content !== null
+  );
 }
 
 export default function ProjectSessionDetailPage({
@@ -427,7 +425,7 @@ export default function ProjectSessionDetailPage({
     basePath: "artifacts",
   });
 
-  const { data: artifactsFiles = [], refetch: refetchArtifactsFiles } =
+  const { data: artifactsFiles = [], refetch: refetchArtifactsFilesRaw } =
     useWorkspaceList(
       projectName,
       sessionName,
@@ -436,6 +434,17 @@ export default function ProjectSessionDetailPage({
         : "artifacts",
       { enabled: openAccordionItems.includes("artifacts") },
     );
+
+  // Stabilize refetchArtifactsFiles with useCallback to prevent infinite re-renders
+  // React Query's refetch is already stable, but this ensures proper dependency tracking
+  const refetchArtifactsFiles = useCallback(async () => {
+    try {
+      await refetchArtifactsFilesRaw();
+    } catch (error) {
+      console.error('Failed to refresh artifacts:', error);
+      // Silent fail - don't interrupt user experience
+    }
+  }, [refetchArtifactsFilesRaw]);
 
   // File uploads list (for Context accordion)
   const { data: fileUploadsList = [], refetch: refetchFileUploadsList } =
@@ -601,6 +610,11 @@ export default function ProjectSessionDetailPage({
       }, COMPLETION_DELAY_MS);
       hasRefreshedOnCompletionRef.current = true;
     } else if (phase !== "Completed") {
+      // Clear any pending completion refresh to avoid race conditions
+      if (completionTimeoutRef.current) {
+        clearTimeout(completionTimeoutRef.current);
+        completionTimeoutRef.current = null;
+      }
       // Reset flag whenever leaving Completed state (handles Running, Error, Cancelled, etc.)
       hasRefreshedOnCompletionRef.current = false;
     }
