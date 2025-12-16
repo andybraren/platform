@@ -72,97 +72,92 @@ export function WorkflowsAccordion({
           </div>
         ) : (
           <div className="space-y-3">
-            {/* Workflow selector - always visible except when activating */}
-            {!workflowActivating && (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  Workflows provide agents with pre-defined context and structured steps to follow.
-                </p>
-                
-                <div>
-                  <Select value={selectedWorkflow} onValueChange={onWorkflowChange} disabled={workflowActivating}>
-                    <SelectTrigger className="w-full h-auto py-8">
-                      <SelectValue placeholder="Generic chat" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">
-                        <div className="flex flex-col items-start gap-0.5 py-1 max-w-[400px]">
-                          <span>General chat</span>
-                          <span className="text-xs text-muted-foreground font-normal line-clamp-2">
-                            A general chat session with no structured workflow.
-                          </span>
-                        </div>
-                      </SelectItem>
-                      {ootbWorkflows.map((workflow) => (
-                        <SelectItem 
-                          key={workflow.id} 
-                          value={workflow.id}
-                          disabled={!workflow.enabled}
-                        >
-                          <div className="flex flex-col items-start gap-0.5 py-1 max-w-[400px]">
-                            <span>{workflow.name}</span>
-                            <span className="text-xs text-muted-foreground font-normal line-clamp-2">
-                              {workflow.description}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                      <SelectSeparator />
-                      <SelectItem value="custom">
-                        <div className="flex flex-col items-start gap-0.5 py-1 max-w-[400px]">
-                          <span>Custom workflow...</span>
-                          <span className="text-xs text-muted-foreground font-normal line-clamp-2">
-                            Load a workflow from a custom Git repository
-                          </span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                {/* Show workflow preview and activate/switch button */}
-                {pendingWorkflow && (
-                  <Alert variant="info">
-                    <AlertCircle />
-                    <AlertTitle>
-                      Reload required
-                    </AlertTitle>
-                    <AlertDescription>
-                      <div className="space-y-2 mt-2">
-                        <p className="text-sm">
-                          Please reload this chat session to switch to the new workflow. Your chat history will be preserved.
-                        </p>
-                        <Button 
-                          onClick={onActivateWorkflow}
-                          className="w-full mt-3"
-                          size="sm"
-                        >
-                          <Play className="mr-2 h-4 w-4" />
-                          Load new workflow
-                        </Button>
+            {/* Workflow selector - always visible */}
+            <p className="text-sm text-muted-foreground">
+              Workflows provide agents with pre-defined context and structured steps to follow.
+            </p>
+            
+            <div>
+              <Select value={selectedWorkflow} onValueChange={onWorkflowChange} disabled={workflowActivating}>
+                <SelectTrigger className="w-full h-auto py-8" disabled={workflowActivating}>
+                  {workflowActivating ? (
+                    <div className="flex flex-col items-start gap-0.5 py-1 w-full">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <span>Switching workflow...</span>
                       </div>
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </>
+                      <span className="text-xs text-muted-foreground font-normal">
+                        This may take a few seconds...
+                      </span>
+                    </div>
+                  ) : (
+                    <SelectValue placeholder="Generic chat" />
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">
+                    <div className="flex flex-col items-start gap-0.5 py-1 max-w-[400px]">
+                      <span>General chat</span>
+                      <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                        A general chat session with no structured workflow.
+                      </span>
+                    </div>
+                  </SelectItem>
+                  {ootbWorkflows.map((workflow) => (
+                    <SelectItem 
+                      key={workflow.id} 
+                      value={workflow.id}
+                      disabled={!workflow.enabled}
+                    >
+                      <div className="flex flex-col items-start gap-0.5 py-1 max-w-[400px]">
+                        <span>{workflow.name}</span>
+                        <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                          {workflow.description}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                  <SelectSeparator />
+                  <SelectItem value="custom">
+                    <div className="flex flex-col items-start gap-0.5 py-1 max-w-[400px]">
+                      <span>Custom workflow...</span>
+                      <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                        Load a workflow from a custom Git repository
+                      </span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Show workflow preview and activate/switch button */}
+            {!workflowActivating && pendingWorkflow && (
+              <Alert variant="info">
+                <AlertCircle />
+                <AlertTitle>
+                  Reload required
+                </AlertTitle>
+                <AlertDescription>
+                  <div className="space-y-2 mt-2">
+                    <p className="text-sm">
+                      Please reload this chat session to switch to the new workflow. Your chat history will be preserved.
+                    </p>
+                    <Button 
+                      onClick={onActivateWorkflow}
+                      className="w-full mt-3"
+                      size="sm"
+                    >
+                      <Play className="mr-2 h-4 w-4" />
+                      Load new workflow
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
             )}
             
             {/* Show active workflow info */}
             {activeWorkflow && !workflowActivating && (
               <></>
-            )}
-            
-            {/* Show activating/switching state */}
-            {workflowActivating && (
-              <Alert>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <AlertTitle>{activeWorkflow ? 'Switching Workflow...' : 'Activating Workflow...'}</AlertTitle>
-                <AlertDescription>
-                  <div className="space-y-2">
-                    <p>Please wait. This may take 10-20 seconds...</p>
-                  </div>
-                </AlertDescription>
-              </Alert>
             )}
           </div>
         )}
