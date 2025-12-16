@@ -16,8 +16,6 @@ import {
   Cloud,
   FolderSync,
   Download,
-  LibraryBig,
-  MessageSquare,
   SlidersHorizontal,
   ArrowLeft,
 } from "lucide-react";
@@ -73,7 +71,7 @@ import { WorkflowsAccordion } from "./components/accordions/workflows-accordion"
 import { RepositoriesAccordion } from "./components/accordions/repositories-accordion";
 import { ArtifactsAccordion } from "./components/accordions/artifacts-accordion";
 import { McpIntegrationsAccordion } from "./components/accordions/mcp-integrations-accordion";
-
+import { WelcomeExperience } from "./components/welcome-experience";
 // Extracted hooks and utilities
 import { useGitOperations } from "./hooks/use-git-operations";
 import { useWorkflowManagement } from "./hooks/use-workflow-management";
@@ -150,12 +148,12 @@ export default function ProjectSessionDetailPage({
   const [sessionName, setSessionName] = useState<string>("");
   const [chatInput, setChatInput] = useState("");
   const [backHref, setBackHref] = useState<string | null>(null);
-  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>(["workflows"]);
+  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
   const [contextModalOpen, setContextModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [repoChanging, setRepoChanging] = useState(false);
-  const [firstMessageLoaded, setFirstMessageLoaded] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
 
   // Directory browser state (unified for artifacts, repos, and workflow)
   const [selectedDirectory, setSelectedDirectory] = useState<DirectoryOption>({
@@ -504,13 +502,12 @@ export default function ProjectSessionDetailPage({
   // Track if we've already initialized from session
   const initializedFromSessionRef = useRef(false);
 
-  // Track when first message loads
+  // Track user interaction (any message sent or workflow selected from welcome screen)
   useEffect(() => {
-    if (aguiState.messages && aguiState.messages.length > 0 && !firstMessageLoaded) {
-      setFirstMessageLoaded(true);
+    if (aguiState.messages && aguiState.messages.length > 0 && !userHasInteracted) {
+      setUserHasInteracted(true);
     }
-  }, [aguiState.messages, firstMessageLoaded]);
-
+  }, [aguiState.messages, userHasInteracted]);
   // Load active workflow and remotes from session
   useEffect(() => {
     if (initializedFromSessionRef.current || !session) return;
@@ -592,6 +589,15 @@ export default function ProjectSessionDetailPage({
     workflowManagement.handleWorkflowChange(value, ootbWorkflows, () =>
       setCustomWorkflowDialogOpen(true),
     );
+  };
+
+  // Handle workflow selection from welcome experience
+  const handleWelcomeWorkflowSelect = (workflowId: string) => {
+    handleWorkflowChange(workflowId);
+    // Trigger activation immediately
+    setTimeout(() => {
+      workflowManagement.activateWorkflow();
+    }, 100);
   };
 
   // Convert AG-UI messages to display format with hierarchical tool call rendering
@@ -1024,7 +1030,6 @@ export default function ProjectSessionDetailPage({
       }
     };
   }, [session?.status?.phase, refetchArtifactsFiles]);
-
   // Session action handlers
   const handleStop = () => {
     stopMutation.mutate(
@@ -1086,12 +1091,14 @@ export default function ProjectSessionDetailPage({
     const finalMessage = chatInput.trim();
     setChatInput("");
 
+    // Mark user interaction when they send first message
+    setUserHasInteracted(true);
+
     try {
       await aguiSendMessage(finalMessage);
     } catch (err) {
       errorToast(err instanceof Error ? err.message : "Failed to send message");
     }
-  };
 
   const handleCommandClick = async (slashCommand: string) => {
     try {
@@ -1297,25 +1304,7 @@ export default function ProjectSessionDetailPage({
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                {/* Blocking overlay when first message hasn't loaded and session is pending */}
-                {!firstMessageLoaded &&
-                  session?.status?.phase === "Pending" && (
-                    <div className="absolute inset-0 bg-background/60 backdrop-blur-sm rounded-lg z-20 flex items-center justify-center">
-                      <div className="flex flex-col items-center justify-center text-center text-muted-foreground">
-                        <LibraryBig className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                          <p className="text-sm">No context yet</p>
-                        </div>
-                        <p className="text-xs mt-1">
-                          Context will appear once the session starts...
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                <div
-                  className={`flex-grow pb-6 ${!firstMessageLoaded && session?.status?.phase === "Pending" ? "pointer-events-none opacity-50" : ""}`}
-                >
+                <div className="flex-grow pb-6">
                   <Accordion
                     type="multiple"
                     value={openAccordionItems}
@@ -1794,26 +1783,7 @@ export default function ProjectSessionDetailPage({
                       </div>
                     )}
 
-                    {/* Session starting overlay */}
-                    {!firstMessageLoaded &&
-                      session?.status?.phase === "Pending" && (
-                        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm rounded-lg z-20 flex items-center justify-center">
-                          <div className="flex flex-col items-center justify-center text-center text-muted-foreground">
-                            <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                            <div className="flex items-center gap-2">
-                              <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                              <p className="text-sm">No messages yet</p>
-                            </div>
-                            <p className="text-xs mt-1">
-                              Messages will appear once the session starts...
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                    <div
-                      className={`flex flex-col flex-1 overflow-hidden ${!firstMessageLoaded && session?.status?.phase === "Pending" ? "pointer-events-none opacity-50" : ""}`}
-                    >
+                    <div className="flex flex-col flex-1 overflow-hidden">
                       <MessagesTab
                         session={session}
                         streamMessages={streamMessages}
@@ -1827,7 +1797,16 @@ export default function ProjectSessionDetailPage({
                         workflowMetadata={workflowMetadata}
                         onCommandClick={handleCommandClick}
                         isRunActive={isRunActive}
-                      />
+                        showWelcomeExperience={true}
+                        welcomeExperienceComponent={
+                          <WelcomeExperience
+                            ootbWorkflows={ootbWorkflows}
+                            onWorkflowSelect={handleWelcomeWorkflowSelect}
+                            onUserInteraction={() => setUserHasInteracted(true)}
+                            userHasInteracted={userHasInteracted}
+                            sessionPhase={session?.status?.phase}
+                          />
+                        }
                     </div>
                   </CardContent>
                 </Card>

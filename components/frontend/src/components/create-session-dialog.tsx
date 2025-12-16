@@ -97,7 +97,6 @@ export function CreateSessionDialog({
       {
         onSuccess: (session) => {
           const sessionName = session.metadata.name;
-          successToast(`Session "${sessionName}" created successfully`);
           setOpen(false);
           form.reset();
           router.push(`/projects/${encodeURIComponent(projectName)}/sessions/${sessionName}`);

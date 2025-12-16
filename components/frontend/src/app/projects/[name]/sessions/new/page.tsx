@@ -130,7 +130,6 @@ export default function NewProjectSessionPage({ params }: { params: Promise<{ na
       {
         onSuccess: (session) => {
           const sessionName = session.metadata.name;
-          successToast(`Session "${sessionName}" created successfully`);
           router.push(`/projects/${encodeURIComponent(projectName)}/sessions/${sessionName}`);
         },
         onError: (error) => {

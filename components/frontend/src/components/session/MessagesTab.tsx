@@ -29,12 +29,13 @@ export type MessagesTabProps = {
   onContinue: () => void;
   workflowMetadata?: WorkflowMetadata;
   onCommandClick?: (slashCommand: string) => void;
-  isRunActive?: boolean;  // NEW: Track if agent is actively processing
+  isRunActive?: boolean;  // Track if agent is actively processing
+  showWelcomeExperience?: boolean;
+  welcomeExperienceComponent?: React.ReactNode;
 };
 
 
-const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chatInput, setChatInput, onSendChat, onInterrupt, onEndSession, onGoToResults, onContinue, workflowMetadata, onCommandClick, isRunActive = false }) => {
-  const [sendingChat, setSendingChat] = useState(false);
+const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chatInput, setChatInput, onSendChat, onInterrupt, onEndSession, onGoToResults, onContinue, workflowMetadata, onCommandClick, isRunActive = false, showWelcomeExperience, welcomeExperienceComponent }) => {
   const [interrupting, setInterrupting] = useState(false);
   const [ending, setEnding] = useState(false);
   const [showSystemMessages, setShowSystemMessages] = useState(false);
@@ -56,8 +57,8 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
   const phase = session?.status?.phase || "";
   const isInteractive = session?.spec?.interactive;
   
-  // Only show chat interface when session is interactive AND in Running state
-  const showChatInterface = isInteractive && phase === "Running";
+  // Show chat interface when session is interactive AND (in Running state OR showing welcome experience)
+  const showChatInterface = isInteractive && (phase === "Running" || showWelcomeExperience);
   
   // Determine if session is in a terminal state
   const isTerminalState = ["Completed", "Failed", "Stopped"].includes(phase);
@@ -275,6 +276,10 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
         onScroll={handleScroll}
         className="flex-1 flex flex-col gap-2 overflow-y-auto px-3 pb-2 scrollbar-thin"
       >
+        {/* Show welcome experience if active */}
+        {showWelcomeExperience && welcomeExperienceComponent}
+
+        {/* Show filtered messages */}
         {filteredMessages.map((m, idx) => (
           <StreamMessage key={`sm-${idx}`} message={m} isNewest={idx === filteredMessages.length - 1} onGoToResults={onGoToResults} />
         ))}
@@ -298,8 +303,8 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
           </div>
         )}
 
-        {filteredMessages.length === 0 && !isCreating && (
-          <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+        {/* Show empty state only if no welcome experience, no messages, and not creating */}
+        {!showWelcomeExperience && filteredMessages.length === 0 && !isCreating && (
             <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No messages yet</p>
             <p className="text-xs mt-1">
