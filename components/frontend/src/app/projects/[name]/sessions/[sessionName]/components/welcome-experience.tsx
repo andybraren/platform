@@ -15,7 +15,7 @@ type WelcomeExperienceProps = {
   hasRealMessages: boolean;
 };
 
-const WELCOME_MESSAGE = `Welcome to Ambient AI! Your workspace and all of its context have been loaded. Please select a workflow below to get started, or type a message to begin chatting.`;
+const WELCOME_MESSAGE = `Welcome to Ambient AI! Your workspace and all of its context is being loaded. Please select a workflow below to get started, or type a message to begin chatting.`;
 const SETUP_MESSAGE = `Great! Give me a moment to get set up`;
 
 export function WelcomeExperience({
