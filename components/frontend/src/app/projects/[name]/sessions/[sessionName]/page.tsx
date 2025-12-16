@@ -515,14 +515,19 @@ export default function ProjectSessionDetailPage({
   // This tracks completed tool results and refreshes artifacts when new ones arrive
   const previousToolResultCount = useRef(0);
   const artifactsRefreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const completionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasRefreshedOnCompletionRef = useRef(false);
 
   useEffect(() => {
+    // Helper to check if message is a completed tool use
+    const isCompletedToolUse = (msg: MessageObject | ToolUseMessages): msg is ToolUseMessages => {
+      return msg.type === "tool_use_messages" && 
+             "resultBlock" in msg && 
+             msg.resultBlock?.content !== null;
+    };
+
     // Count completed tool use messages (tools with results)
-    const completedToolCount = streamMessages.filter(
-      (msg) => msg.type === "tool_use_messages" && 
-               (msg as ToolUseMessages).resultBlock?.content !== null
-    ).length;
+    const completedToolCount = streamMessages.filter(isCompletedToolUse).length;
 
     // If we have new completed tools, refresh artifacts after a short delay
     if (completedToolCount > previousToolResultCount.current && completedToolCount > 0) {
@@ -545,14 +550,16 @@ export default function ProjectSessionDetailPage({
         clearTimeout(artifactsRefreshTimeoutRef.current);
       }
     };
-  }, [streamMessages, refetchArtifactsFiles]);
+    // React Query guarantees refetchArtifactsFiles is stable, safe to omit from deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [streamMessages]);
 
   // Also refresh artifacts when session completes (catch any final artifacts)
   useEffect(() => {
     const phase = session?.status?.phase;
     if (phase === "Completed" && !hasRefreshedOnCompletionRef.current) {
       // Refresh after a short delay to ensure all final writes are complete
-      setTimeout(() => {
+      completionTimeoutRef.current = setTimeout(() => {
         refetchArtifactsFiles();
       }, 2000);
       hasRefreshedOnCompletionRef.current = true;
@@ -561,7 +568,16 @@ export default function ProjectSessionDetailPage({
     if (phase === "Running") {
       hasRefreshedOnCompletionRef.current = false;
     }
-  }, [session?.status?.phase, refetchArtifactsFiles]);
+
+    // Cleanup timeout on unmount or phase change
+    return () => {
+      if (completionTimeoutRef.current) {
+        clearTimeout(completionTimeoutRef.current);
+      }
+    };
+    // React Query guarantees refetchArtifactsFiles is stable, safe to omit from deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.status?.phase]);
 
   // Session action handlers
   const handleStop = () => {
