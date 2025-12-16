@@ -35,8 +35,9 @@ export function WelcomeExperience({
   const [dotCount, setDotCount] = useState(0);
 
   // Determine if we should show workflow cards and animation
-  const isInitialPhase = sessionPhase === "Pending" || sessionPhase === "Creating";
-  const shouldShowAnimation = isInitialPhase && !userHasInteracted;
+  // Show animation unless we know for certain the session has already started running or user has interacted
+  const isRunningOrBeyond = sessionPhase === "Running" || sessionPhase === "Completed" || sessionPhase === "Failed" || sessionPhase === "Stopped";
+  const shouldShowAnimation = !userHasInteracted && !hasRealMessages && !isRunningOrBeyond;
   // Show workflow cards if they haven't been shown yet and session is not in terminal state
   const isTerminalPhase = sessionPhase === "Completed" || sessionPhase === "Failed" || sessionPhase === "Stopped";
   const shouldShowWorkflowCards = (cardsEverShown || !hasRealMessages) && !isTerminalPhase;
@@ -70,6 +71,35 @@ export function WelcomeExperience({
       setCardsEverShown(true);
     }
   }, [isTypingComplete, hasRealMessages, isTerminalPhase]);
+
+  // Setup message typing effect (after workflow selected)
+  useEffect(() => {
+    if (!selectedWorkflowId) return;
+
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex < SETUP_MESSAGE.length) {
+        setSetupDisplayedText(SETUP_MESSAGE.slice(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        setIsSetupTypingComplete(true);
+        clearInterval(interval);
+      }
+    }, 25); // 25ms per character
+
+    return () => clearInterval(interval);
+  }, [selectedWorkflowId]);
+
+  // Animate dots after setup message completes
+  useEffect(() => {
+    if (!isSetupTypingComplete) return;
+
+    const interval = setInterval(() => {
+      setDotCount((prev) => (prev + 1) % 4); // Cycles 0, 1, 2, 3
+    }, 500); // Change dot every 500ms
+
+    return () => clearInterval(interval);
+  }, [isSetupTypingComplete]);
 
   const handleWorkflowSelect = (workflowId: string) => {
     setSelectedWorkflowId(workflowId);
@@ -175,6 +205,36 @@ export function WelcomeExperience({
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Setup message after workflow selection */}
+      {selectedWorkflowId && (
+        <div className="mb-4 mt-2">
+          <div className="flex space-x-3 items-start">
+            {/* Avatar */}
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600">
+                <span className="text-white text-xs font-semibold">AI</span>
+              </div>
+            </div>
+
+            {/* Message Content */}
+            <div className="flex-1 min-w-0">
+              {/* Timestamp */}
+              <div className="text-[10px] text-muted-foreground/60 mb-1">just now</div>
+              <div className="rounded-lg p-3 bg-card">
+                {/* Content */}
+                <div className="text-sm text-muted-foreground leading-relaxed">
+                  {setupDisplayedText}
+                  {isSetupTypingComplete && ".".repeat(dotCount)}
+                  {!isSetupTypingComplete && (
+                    <span className="inline-block w-1 h-4 ml-0.5 bg-primary animate-pulse" />
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
