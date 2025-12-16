@@ -16,6 +16,7 @@ type WelcomeExperienceProps = {
 };
 
 const WELCOME_MESSAGE = `Welcome to Ambient AI! Your workspace and all of its context have been loaded. Please select a workflow below to get started, or type a message to begin chatting.`;
+const SETUP_MESSAGE = `Great! Give me a moment to get set up`;
 
 export function WelcomeExperience({
   ootbWorkflows,
@@ -29,6 +30,9 @@ export function WelcomeExperience({
   const [isTypingComplete, setIsTypingComplete] = useState(false);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
   const [cardsEverShown, setCardsEverShown] = useState(false);
+  const [setupDisplayedText, setSetupDisplayedText] = useState("");
+  const [isSetupTypingComplete, setIsSetupTypingComplete] = useState(false);
+  const [dotCount, setDotCount] = useState(0);
 
   // Determine if we should show workflow cards and animation
   const isInitialPhase = sessionPhase === "Pending" || sessionPhase === "Creating";
@@ -93,7 +97,7 @@ export function WelcomeExperience({
       }} />
     <div className="space-y-4">
       {/* Static welcome message styled like a chat message */}
-      <div className="mb-4 mt-2">
+      <div className="mb-4 mt-6">
         <div className="flex space-x-3 items-start">
           {/* Avatar */}
           <div className="flex-shrink-0">
@@ -134,7 +138,7 @@ export function WelcomeExperience({
                   selectedWorkflowId === workflow.id
                     ? "border-primary bg-primary/5"
                     : selectedWorkflowId !== null
-                      ? "opacity-50 cursor-not-allowed"
+                      ? "opacity-60 cursor-not-allowed bg-muted/30"
                       : ""
                 )}
                 style={{
@@ -148,21 +152,26 @@ export function WelcomeExperience({
               >
                 <CardContent className="p-4 space-y-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold">{workflow.name}</h3>
+                    <h3 className={cn(
+                      "text-sm font-semibold",
+                      selectedWorkflowId !== null && selectedWorkflowId !== workflow.id && "text-muted-foreground/60"
+                    )}>
+                      {workflow.name}
+                    </h3>
                     {selectedWorkflowId === workflow.id && (
                       <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                         Selected
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
+                  <p className={cn(
+                    "text-xs line-clamp-2",
+                    selectedWorkflowId !== null && selectedWorkflowId !== workflow.id
+                      ? "text-muted-foreground/40"
+                      : "text-muted-foreground"
+                  )}>
                     {workflow.description}
                   </p>
-                  {workflow.agentCount !== undefined && workflow.agentCount > 0 && (
-                    <Badge variant="outline" className="text-[10px]">
-                      {workflow.agentCount} agent{workflow.agentCount !== 1 ? "s" : ""}
-                    </Badge>
-                  )}
                 </CardContent>
               </Card>
             ))}

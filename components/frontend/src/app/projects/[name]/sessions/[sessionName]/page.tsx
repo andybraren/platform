@@ -1806,6 +1806,7 @@ export default function ProjectSessionDetailPage({
                             onUserInteraction={() => setUserHasInteracted(true)}
                             userHasInteracted={userHasInteracted}
                             sessionPhase={session?.status?.phase}
+                            hasRealMessages={hasRealMessages}
                           />
                         }
                     </div>
