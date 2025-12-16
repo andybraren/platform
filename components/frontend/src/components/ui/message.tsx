@@ -63,7 +63,7 @@ const defaultComponents: Components = {
     );
   },
   p: ({ children }) => (
-    <p className="text-muted-foreground leading-relaxed mb-0 text-sm">{children}</p>
+    <p className="text-muted-foreground leading-relaxed mb-[0.2rem] text-sm">{children}</p>
   ),
   h1: ({ children }) => (
     <h1 className="text-lg font-bold text-foreground mb-2">{children}</h1>
@@ -212,7 +212,8 @@ export const Message = React.forwardRef<HTMLDivElement, MessageProps>(
               </div>
             )}
             <div className={cn(
-              borderless ? "p-0" : "rounded-lg p-3",
+              "rounded-lg",
+              borderless ? "p-0" : "",
               !borderless && (isBot ? "bg-card" : "bg-border/30")
             )}>
               {/* Content */}

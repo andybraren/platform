@@ -90,16 +90,16 @@ export function WelcomeExperience({
     return () => clearInterval(interval);
   }, [selectedWorkflowId]);
 
-  // Animate dots after setup message completes
+  // Animate dots after setup message completes (stop when real messages appear)
   useEffect(() => {
-    if (!isSetupTypingComplete) return;
+    if (!isSetupTypingComplete || hasRealMessages) return;
 
     const interval = setInterval(() => {
       setDotCount((prev) => (prev + 1) % 4); // Cycles 0, 1, 2, 3
     }, 500); // Change dot every 500ms
 
     return () => clearInterval(interval);
-  }, [isSetupTypingComplete]);
+  }, [isSetupTypingComplete, hasRealMessages]);
 
   const handleWorkflowSelect = (workflowId: string) => {
     setSelectedWorkflowId(workflowId);
@@ -140,14 +140,14 @@ export function WelcomeExperience({
           <div className="flex-1 min-w-0">
             {/* Timestamp */}
             <div className="text-[10px] text-muted-foreground/60 mb-1">just now</div>
-            <div className="rounded-lg p-3 bg-card">
+            <div className="rounded-lg bg-card">
               {/* Content */}
-              <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap mb-[0.2rem]">
                 {displayedText}
                 {shouldShowAnimation && !isTypingComplete && (
                   <span className="inline-block w-1 h-4 ml-0.5 bg-primary animate-pulse" />
                 )}
-              </div>
+              </p>
             </div>
           </div>
         </div>
@@ -224,15 +224,15 @@ export function WelcomeExperience({
             <div className="flex-1 min-w-0">
               {/* Timestamp */}
               <div className="text-[10px] text-muted-foreground/60 mb-1">just now</div>
-              <div className="rounded-lg p-3 bg-card">
+              <div className="rounded-lg bg-card">
                 {/* Content */}
-                <div className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-[0.2rem]">
                   {setupDisplayedText}
-                  {isSetupTypingComplete && ".".repeat(dotCount)}
+                  {isSetupTypingComplete && (hasRealMessages ? "..." : ".".repeat(dotCount))}
                   {!isSetupTypingComplete && (
                     <span className="inline-block w-1 h-4 ml-0.5 bg-primary animate-pulse" />
                   )}
-                </div>
+                </p>
               </div>
             </div>
           </div>
