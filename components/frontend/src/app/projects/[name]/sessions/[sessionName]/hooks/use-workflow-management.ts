@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { successToast, errorToast } from "@/hooks/use-toast";
+import { errorToast } from "@/hooks/use-toast";
 import type { WorkflowConfig } from "../lib/types";
 
 type UseWorkflowManagementProps = {
@@ -51,7 +51,6 @@ export function useWorkflowManagement({
       // Note: Workflow clone and restart handled by operator
       // Initial workflow prompt auto-executed via AG-UI pattern (POST /agui/run)
       
-      successToast(`Activating workflow: ${pendingWorkflow.name}`);
       setActiveWorkflow(pendingWorkflow.id);
       setPendingWorkflow(null);
       
@@ -59,7 +58,6 @@ export function useWorkflowManagement({
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       onWorkflowActivated?.();
-      successToast("Workflow activated successfully");
       
       return true;
     } catch (error) {
