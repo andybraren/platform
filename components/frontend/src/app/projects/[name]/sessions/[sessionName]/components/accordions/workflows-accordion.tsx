@@ -1,26 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { Play, Loader2, Workflow, ChevronDown, ChevronRight, Info, AlertCircle } from "lucide-react";
+import { Play, Loader2, Workflow } from "lucide-react";
 import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { WorkflowConfig } from "../../lib/types";
 
 type WorkflowsAccordionProps = {
   sessionPhase?: string;
   activeWorkflow: string | null;
   selectedWorkflow: string;
-  pendingWorkflow?: string | null;
   workflowActivating: boolean;
   ootbWorkflows: WorkflowConfig[];
   isExpanded: boolean;
   onWorkflowChange: (value: string) => void;
-  onActivateWorkflow: () => void;
-  onCommandClick?: (slashCommand: string) => void;
   onResume?: () => void;
 };
 
@@ -28,13 +22,10 @@ export function WorkflowsAccordion({
   sessionPhase,
   activeWorkflow,
   selectedWorkflow,
-  pendingWorkflow,
   workflowActivating,
   ootbWorkflows,
   isExpanded,
   onWorkflowChange,
-  onActivateWorkflow,
-  onCommandClick,
   onResume,
 }: WorkflowsAccordionProps) {
   const isSessionStopped = sessionPhase === 'Stopped' || sessionPhase === 'Error' || sessionPhase === 'Completed';

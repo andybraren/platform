@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { AgenticSession, MessageObject, ToolUseMessages } from "@/types/agentic-session";
 import type { WorkflowMetadata } from "@/app/projects/[name]/sessions/[sessionName]/lib/types";
 
@@ -37,6 +38,7 @@ export type MessagesTabProps = {
 const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chatInput, setChatInput, onSendChat, onInterrupt, onEndSession, onGoToResults, onContinue, workflowMetadata, onCommandClick, isRunActive = false, showWelcomeExperience, welcomeExperienceComponent }) => {
   const [interrupting, setInterrupting] = useState(false);
   const [ending, setEnding] = useState(false);
+  const [sendingChat, setSendingChat] = useState(false);
   const [showSystemMessages, setShowSystemMessages] = useState(false);
   const [agentsPopoverOpen, setAgentsPopoverOpen] = useState(false);
   const [commandsPopoverOpen, setCommandsPopoverOpen] = useState(false);

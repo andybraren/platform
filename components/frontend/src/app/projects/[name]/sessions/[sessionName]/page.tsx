@@ -265,6 +265,7 @@ export default function ProjectSessionDetailPage({
       // Session is now running, activate the queued workflow
       workflowManagement.activateWorkflow(workflowManagement.queuedWorkflow, phase);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.status?.phase, workflowManagement.queuedWorkflow]);
 
   // Repo management mutations
@@ -971,6 +972,13 @@ export default function ProjectSessionDetailPage({
     aguiState.pendingChildren,   // CRITICAL: Include so UI updates when children finish
   ]);
 
+  // Check if there are any real messages (user or assistant messages, not just system)
+  const hasRealMessages = useMemo(() => {
+    return streamMessages.some(
+      (msg) => msg.type === "user_message" || msg.type === "agent_message"
+    );
+  }, [streamMessages]);
+
   // Auto-refresh artifacts when messages complete
   // UX improvement: Automatically refresh the artifacts panel when Claude writes new files,
   // so users can see their changes immediately without manually clicking the refresh button
@@ -1110,6 +1118,7 @@ export default function ProjectSessionDetailPage({
     } catch (err) {
       errorToast(err instanceof Error ? err.message : "Failed to send message");
     }
+  };
 
   const handleCommandClick = async (slashCommand: string) => {
     try {
@@ -1330,8 +1339,6 @@ export default function ProjectSessionDetailPage({
                       ootbWorkflows={ootbWorkflows}
                       isExpanded={openAccordionItems.includes("workflows")}
                       onWorkflowChange={handleWorkflowChange}
-                      onActivateWorkflow={workflowManagement.activateWorkflow}
-                      onCommandClick={handleCommandClick}
                       onResume={handleContinue}
                     />
 
