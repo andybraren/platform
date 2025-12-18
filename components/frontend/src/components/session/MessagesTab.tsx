@@ -304,6 +304,7 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
 
         {/* Show empty state only if no welcome experience, no messages, and not creating */}
         {!showWelcomeExperience && filteredMessages.length === 0 && !isCreating && (
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No messages yet</p>
             <p className="text-xs mt-1">

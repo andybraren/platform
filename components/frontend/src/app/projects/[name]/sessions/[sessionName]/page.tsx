@@ -1804,6 +1804,7 @@ export default function ProjectSessionDetailPage({
                             hasRealMessages={hasRealMessages}
                           />
                         }
+                      />
                     </div>
                   </CardContent>
                 </Card>
