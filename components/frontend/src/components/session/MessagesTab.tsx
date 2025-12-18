@@ -292,20 +292,8 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
           </div>
         )}
 
-        {filteredMessages.length === 0 && isCreating && (
-          <div className="flex items-center justify-center py-12">
-            <Alert className="max-w-md mx-4">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <AlertTitle>Starting Session...</AlertTitle>
-              <AlertDescription>
-                <p>Setting up your workspace and initializing the agent. Messages will appear here once the session is ready.</p>
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
-
-        {/* Show empty state only if no welcome experience, no messages, and not creating */}
-        {!showWelcomeExperience && filteredMessages.length === 0 && !isCreating && (
+        {/* Show empty state only if no welcome experience and no messages */}
+        {!showWelcomeExperience && filteredMessages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No messages yet</p>
