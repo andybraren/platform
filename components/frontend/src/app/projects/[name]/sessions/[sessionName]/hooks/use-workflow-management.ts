@@ -63,12 +63,11 @@ export function useWorkflowManagement({
         throw new Error(errorData.error || "Failed to update workflow");
       }
       
-      // 2. Send WebSocket message to trigger workflow clone and restart
-      await fetch(`/api/projects/${projectName}/agentic-sessions/${sessionName}/messages`, {
+      // 2. Call the workflow endpoint to update the active workflow
+      await fetch(`/api/projects/${projectName}/agentic-sessions/${sessionName}/workflow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: "workflow_change",
           gitUrl: workflow.gitUrl,
           branch: workflow.branch,
           path: workflow.path || "",
