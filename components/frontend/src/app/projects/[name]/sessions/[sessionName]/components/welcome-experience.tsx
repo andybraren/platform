@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +12,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WorkflowConfig } from "../lib/types";
 
@@ -43,6 +45,8 @@ export function WelcomeExperience({
   const [setupDisplayedText, setSetupDisplayedText] = useState("");
   const [isSetupTypingComplete, setIsSetupTypingComplete] = useState(false);
   const [dotCount, setDotCount] = useState(0);
+  const [workflowSearch, setWorkflowSearch] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Determine if we should show workflow cards and animation
   // Show animation unless we know for certain the session has already started running or user has interacted
@@ -118,6 +122,26 @@ export function WelcomeExperience({
   };
 
   const enabledWorkflows = ootbWorkflows.filter((w) => w.enabled);
+
+  // Filter workflows based on search query
+  const filteredWorkflows = ootbWorkflows.filter((workflow) => {
+    if (!workflowSearch) return true;
+    const searchLower = workflowSearch.toLowerCase();
+    return (
+      workflow.name.toLowerCase().includes(searchLower) ||
+      workflow.description.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Filter for general chat based on search
+  const showGeneralChat = !workflowSearch || 
+    "general chat".includes(workflowSearch.toLowerCase()) ||
+    "A general chat session with no structured workflow.".toLowerCase().includes(workflowSearch.toLowerCase());
+
+  // Filter for custom workflow based on search
+  const showCustomWorkflow = !workflowSearch ||
+    "custom workflow".toLowerCase().includes(workflowSearch.toLowerCase()) ||
+    "load a workflow from a custom git repository".toLowerCase().includes(workflowSearch.toLowerCase());
 
   return (
     <>
@@ -216,7 +240,13 @@ export function WelcomeExperience({
 
           {/* View all workflows button */}
           <div className="mt-6 flex justify-start items-center gap-4">
-            <DropdownMenu>
+            <DropdownMenu onOpenChange={(open) => {
+              if (open) {
+                setWorkflowSearch("");
+                // Focus the search input after a brief delay to ensure it's rendered
+                setTimeout(() => searchInputRef.current?.focus(), 0);
+              }
+            }}>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
@@ -227,43 +257,76 @@ export function WelcomeExperience({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-[450px]">
-                <DropdownMenuItem
-                  onClick={() => handleWorkflowSelect("none")}
-                  disabled={selectedWorkflowId !== null}
-                >
-                  <div className="flex flex-col items-start gap-0.5 py-1 w-full">
-                    <span>General chat</span>
-                    <span className="text-xs text-muted-foreground font-normal line-clamp-2">
-                      A general chat session with no structured workflow.
-                    </span>
+                {/* Search box */}
+                <div className="px-2 py-2 border-b sticky top-0 bg-popover z-10">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      ref={searchInputRef}
+                      type="text"
+                      placeholder="Search workflows..."
+                      value={workflowSearch}
+                      onChange={(e) => setWorkflowSearch(e.target.value)}
+                      className="pl-8 h-9"
+                      onKeyDown={(e) => {
+                        // Prevent dropdown from closing on keyboard interaction
+                        e.stopPropagation();
+                      }}
+                    />
                   </div>
-                </DropdownMenuItem>
-                {ootbWorkflows.map((workflow) => (
-                  <DropdownMenuItem
-                    key={workflow.id}
-                    onClick={() => workflow.enabled && handleWorkflowSelect(workflow.id)}
-                    disabled={!workflow.enabled || selectedWorkflowId !== null}
-                  >
-                    <div className="flex flex-col items-start gap-0.5 py-1 w-full">
-                      <span>{workflow.name}</span>
-                      <span className="text-xs text-muted-foreground font-normal line-clamp-2">
-                        {workflow.description}
-                      </span>
+                </div>
+
+                {/* Workflow items */}
+                <div className="max-h-[400px] overflow-y-auto">
+                  {showGeneralChat && (
+                    <DropdownMenuItem
+                      onClick={() => handleWorkflowSelect("none")}
+                      disabled={selectedWorkflowId !== null}
+                    >
+                      <div className="flex flex-col items-start gap-0.5 py-1 w-full">
+                        <span>General chat</span>
+                        <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                          A general chat session with no structured workflow.
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+                  )}
+                  {filteredWorkflows.map((workflow) => (
+                    <DropdownMenuItem
+                      key={workflow.id}
+                      onClick={() => workflow.enabled && handleWorkflowSelect(workflow.id)}
+                      disabled={!workflow.enabled || selectedWorkflowId !== null}
+                    >
+                      <div className="flex flex-col items-start gap-0.5 py-1 w-full">
+                        <span>{workflow.name}</span>
+                        <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                          {workflow.description}
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                  {(showGeneralChat || filteredWorkflows.length > 0) && showCustomWorkflow && (
+                    <DropdownMenuSeparator />
+                  )}
+                  {showCustomWorkflow && (
+                    <DropdownMenuItem
+                      onClick={() => handleWorkflowSelect("custom")}
+                      disabled={selectedWorkflowId !== null}
+                    >
+                      <div className="flex flex-col items-start gap-0.5 py-1 w-full">
+                        <span>Custom workflow...</span>
+                        <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                          Load a workflow from a custom Git repository
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+                  )}
+                  {!showGeneralChat && filteredWorkflows.length === 0 && !showCustomWorkflow && (
+                    <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+                      No workflows found
                     </div>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => handleWorkflowSelect("custom")}
-                  disabled={selectedWorkflowId !== null}
-                >
-                  <div className="flex flex-col items-start gap-0.5 py-1 w-full">
-                    <span>Custom workflow...</span>
-                    <span className="text-xs text-muted-foreground font-normal line-clamp-2">
-                      Load a workflow from a custom Git repository
-                    </span>
-                  </div>
-                </DropdownMenuItem>
+                  )}
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
             
