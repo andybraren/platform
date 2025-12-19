@@ -21,6 +21,7 @@ type WelcomeExperienceProps = {
   userHasInteracted: boolean;
   sessionPhase?: string;
   hasRealMessages: boolean;
+  onLoadWorkflow?: () => void;
 };
 
 const WELCOME_MESSAGE = `Welcome to Ambient AI! Your workspace and all of its context is being loaded. Please select a workflow below to get started, or type a message to begin chatting.`;
@@ -33,6 +34,7 @@ export function WelcomeExperience({
   userHasInteracted,
   sessionPhase,
   hasRealMessages,
+  onLoadWorkflow,
 }: WelcomeExperienceProps) {
   const [displayedText, setDisplayedText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
@@ -163,10 +165,7 @@ export function WelcomeExperience({
 
       {/* Workflow cards - show after typing completes (only for initial phases) */}
       {shouldShowWorkflowCards && isTypingComplete && enabledWorkflows.length > 0 && (
-        <div className="px-4 space-y-2 animate-fade-in-up">
-          <p className="text-xs font-medium text-muted-foreground">
-            Suggested workflows:
-          </p>
+        <div className="pl-11 pr-4 space-y-2 animate-fade-in-up">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {enabledWorkflows.map((workflow, index) => (
               <Card
@@ -188,7 +187,7 @@ export function WelcomeExperience({
                   }
                 }}
               >
-                <CardContent className="p-4 space-y-2">
+                <CardContent className="p-3 space-y-1">
                   <div className="flex items-center justify-between">
                     <h3 className={cn(
                       "text-sm font-semibold",
@@ -216,7 +215,7 @@ export function WelcomeExperience({
           </div>
 
           {/* View all workflows button */}
-          <div className="mt-3 flex justify-start">
+          <div className="mt-6 flex justify-start items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -267,6 +266,17 @@ export function WelcomeExperience({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            
+            {onLoadWorkflow && (
+              <Button
+                variant="ghost"
+                className="text-sm text-primary hover:text-primary/80 hover:bg-transparent p-0 h-auto cursor-pointer"
+                disabled={selectedWorkflowId !== null}
+                onClick={onLoadWorkflow}
+              >
+                Load workflow
+              </Button>
+            )}
           </div>
         </div>
       )}

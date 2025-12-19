@@ -1818,6 +1818,7 @@ export default function ProjectSessionDetailPage({
                             userHasInteracted={userHasInteracted}
                             sessionPhase={session?.status?.phase}
                             hasRealMessages={hasRealMessages}
+                            onLoadWorkflow={() => setCustomWorkflowDialogOpen(true)}
                           />
                         }
                       />
