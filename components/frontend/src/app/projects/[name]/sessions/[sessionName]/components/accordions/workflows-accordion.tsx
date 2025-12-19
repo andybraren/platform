@@ -56,12 +56,24 @@ export function WorkflowsAccordion({
     "custom workflow".toLowerCase().includes(workflowSearch.toLowerCase()) ||
     "load a workflow from a custom git repository".toLowerCase().includes(workflowSearch.toLowerCase());
 
-  // Get display name for selected workflow
-  const getSelectedWorkflowName = () => {
-    if (selectedWorkflow === "none") return "General chat";
-    if (selectedWorkflow === "custom") return "Custom workflow...";
+  // Get display info for selected workflow
+  const getSelectedWorkflowInfo = () => {
+    if (selectedWorkflow === "none") {
+      return {
+        name: "General chat",
+        description: "A general chat session with no structured workflow."
+      };
+    }
+    if (selectedWorkflow === "custom") {
+      return {
+        name: "Custom workflow...",
+        description: "Load a workflow from a custom Git repository"
+      };
+    }
     const workflow = ootbWorkflows.find(w => w.id === selectedWorkflow);
-    return workflow ? workflow.name : "Select workflow...";
+    return workflow 
+      ? { name: workflow.name, description: workflow.description }
+      : { name: "Select workflow...", description: "" };
   };
 
   const handleWorkflowSelect = (value: string) => {
@@ -125,11 +137,11 @@ export function WorkflowsAccordion({
                     variant="outline"
                     role="combobox"
                     aria-expanded={popoverOpen}
-                    className="w-full h-auto py-8 justify-between"
+                    className="w-full h-auto py-3 justify-between"
                     disabled={workflowActivating}
                   >
                     {workflowActivating ? (
-                      <div className="flex flex-col items-start gap-0.5 py-1 w-full">
+                      <div className="flex flex-col items-start gap-0.5 w-full">
                         <div className="flex items-center gap-2">
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           <span>Switching workflow...</span>
@@ -139,14 +151,19 @@ export function WorkflowsAccordion({
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between w-full">
-                        <span>{getSelectedWorkflowName()}</span>
-                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <div className="flex items-start justify-between w-full gap-2">
+                        <div className="flex flex-col items-start gap-0.5 text-left">
+                          <span className="font-medium">{getSelectedWorkflowInfo().name}</span>
+                          <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                            {getSelectedWorkflowInfo().description}
+                          </span>
+                        </div>
+                        <ChevronDown className="h-4 w-4 shrink-0 opacity-50 mt-1" />
                       </div>
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[500px] p-0" align="start">
+                <PopoverContent className="w-[450px] p-0" align="start" sideOffset={4}>
                   {/* Search box */}
                   <div className="px-2 py-2 border-b sticky top-0 bg-popover z-10">
                     <div className="relative">
