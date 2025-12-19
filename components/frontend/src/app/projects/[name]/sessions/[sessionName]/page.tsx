@@ -154,6 +154,7 @@ export default function ProjectSessionDetailPage({
   const [repoChanging, setRepoChanging] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userHasInteracted, setUserHasInteracted] = useState(false);
+  const [queuedMessages, setQueuedMessages] = useState<string[]>([]);
 
   // Directory browser state (unified for artifacts, repos, and workflow)
   const [selectedDirectory, setSelectedDirectory] = useState<DirectoryOption>({
@@ -267,6 +268,30 @@ export default function ProjectSessionDetailPage({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.status?.phase, workflowManagement.queuedWorkflow]);
+
+  // Process queued messages when session becomes Running
+  useEffect(() => {
+    const phase = session?.status?.phase;
+    if (phase === "Running" && queuedMessages.length > 0) {
+      // Session is now running, send all queued messages
+      const processMessages = async () => {
+        for (const message of queuedMessages) {
+          try {
+            await aguiSendMessage(message);
+            // Small delay between messages to avoid overwhelming the system
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } catch (err) {
+            errorToast(err instanceof Error ? err.message : "Failed to send queued message");
+          }
+        }
+        // Clear the queue after processing
+        setQueuedMessages([]);
+      };
+      
+      processMessages();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.status?.phase, queuedMessages.length]);
 
   // Repo management mutations
   const addRepoMutation = useMutation({
@@ -1120,6 +1145,15 @@ export default function ProjectSessionDetailPage({
     // Mark user interaction when they send first message
     setUserHasInteracted(true);
 
+    const phase = session?.status?.phase;
+    
+    // If session is not yet running, queue the message for later
+    // This includes: undefined (loading), "Pending", "Creating", or any other non-Running state
+    if (!phase || phase !== "Running") {
+      setQueuedMessages(prev => [...prev, finalMessage]);
+      return;
+    }
+
     try {
       await aguiSendMessage(finalMessage);
     } catch (err) {
@@ -1810,6 +1844,7 @@ export default function ProjectSessionDetailPage({
                         showWelcomeExperience={true}
                         activeWorkflow={workflowManagement.activeWorkflow}
                         userHasInteracted={userHasInteracted}
+                        queuedMessages={queuedMessages}
                         welcomeExperienceComponent={
                           <WelcomeExperience
                             ootbWorkflows={ootbWorkflows}
