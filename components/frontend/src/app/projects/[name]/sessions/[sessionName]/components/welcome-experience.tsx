@@ -212,7 +212,6 @@ export function WelcomeExperience({
                         {char}
                       </span>
                     ))}
-                    <span className="inline-block w-1 h-4 ml-0.5 bg-primary animate-pulse" />
                   </>
                 ) : (
                   displayedText
@@ -411,7 +410,6 @@ export function WelcomeExperience({
                           {char}
                         </span>
                       ))}
-                      <span className="inline-block w-1 h-4 ml-0.5 bg-primary animate-pulse" />
                     </>
                   ) : (
                     <>
