@@ -32,10 +32,11 @@ export type MessagesTabProps = {
   showWelcomeExperience?: boolean;
   welcomeExperienceComponent?: React.ReactNode;
   activeWorkflow?: string | null;  // Track if workflow has been selected
+  userHasInteracted?: boolean;  // Track if user has sent any messages
 };
 
 
-const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chatInput, setChatInput, onSendChat, onInterrupt, onEndSession, onGoToResults, onContinue, workflowMetadata, onCommandClick, isRunActive = false, showWelcomeExperience, welcomeExperienceComponent, activeWorkflow }) => {
+const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chatInput, setChatInput, onSendChat, onInterrupt, onEndSession, onGoToResults, onContinue, workflowMetadata, onCommandClick, isRunActive = false, showWelcomeExperience, welcomeExperienceComponent, activeWorkflow, userHasInteracted = false }) => {
   const [interrupting, setInterrupting] = useState(false);
   const [ending, setEnding] = useState(false);
   const [sendingChat, setSendingChat] = useState(false);
@@ -271,8 +272,8 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
   };
 
   // Determine if we should show messages
-  // Messages should be hidden until workflow is selected when welcome experience is active
-  const shouldShowMessages = !showWelcomeExperience || activeWorkflow;
+  // Messages should be hidden until workflow is selected OR user sends a message when welcome experience is active
+  const shouldShowMessages = !showWelcomeExperience || activeWorkflow || userHasInteracted;
 
   return (
     <div className="flex flex-col h-full">

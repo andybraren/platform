@@ -512,35 +512,17 @@ export default function ProjectSessionDetailPage({
 
   // Track if we've already initialized from session
   const initializedFromSessionRef = useRef(false);
+  const workflowLoadedFromSessionRef = useRef(false);
 
-  // Track user interaction (any message sent or workflow selected from welcome screen)
-  useEffect(() => {
-    if (aguiState.messages && aguiState.messages.length > 0 && !userHasInteracted) {
-      setUserHasInteracted(true);
-    }
-  }, [aguiState.messages, userHasInteracted]);
+  // Note: userHasInteracted is only set when:
+  // 1. User explicitly selects a workflow (handleWelcomeWorkflowSelect -> onUserInteraction)
+  // 2. User sends a message (sendChat sets it to true)
+  // It should NOT be set automatically when backend messages arrive
 
-  // Load active workflow and remotes from session
+  // Load remotes from session annotations (one-time initialization)
   useEffect(() => {
     if (initializedFromSessionRef.current || !session) return;
 
-    if (session.spec?.activeWorkflow && ootbWorkflows.length === 0) {
-      return;
-    }
-
-    if (session.spec?.activeWorkflow) {
-      const gitUrl = session.spec.activeWorkflow.gitUrl;
-      const matchingWorkflow = ootbWorkflows.find((w) => w.gitUrl === gitUrl);
-      if (matchingWorkflow) {
-        workflowManagement.setActiveWorkflow(matchingWorkflow.id);
-        workflowManagement.setSelectedWorkflow(matchingWorkflow.id);
-      } else {
-        workflowManagement.setActiveWorkflow("custom");
-        workflowManagement.setSelectedWorkflow("custom");
-      }
-    }
-
-    // Load remotes from annotations
     const annotations = session.metadata?.annotations || {};
     const remotes: Record<string, DirectoryRemote> = {};
 
@@ -560,7 +542,7 @@ export default function ProjectSessionDetailPage({
 
     setDirectoryRemotes(remotes);
     initializedFromSessionRef.current = true;
-  }, [session, ootbWorkflows, workflowManagement]);
+  }, [session]);
 
   // Compute directory options
   const directoryOptions = useMemo<DirectoryOption[]>(() => {
@@ -978,6 +960,31 @@ export default function ProjectSessionDetailPage({
       (msg) => msg.type === "user_message" || msg.type === "agent_message"
     );
   }, [streamMessages]);
+
+  // Load workflow from session for existing sessions (with messages)
+  // Placed here after hasRealMessages is defined
+  useEffect(() => {
+    if (workflowLoadedFromSessionRef.current || !session) return;
+    if (session.spec?.activeWorkflow && ootbWorkflows.length === 0) return;
+
+    // Auto-load workflow only if there are already messages (existing session)
+    // For new sessions, wait for explicit user selection from welcome screen
+    if (session.spec?.activeWorkflow && hasRealMessages) {
+      const gitUrl = session.spec.activeWorkflow.gitUrl;
+      const matchingWorkflow = ootbWorkflows.find((w) => w.gitUrl === gitUrl);
+      if (matchingWorkflow) {
+        workflowManagement.setActiveWorkflow(matchingWorkflow.id);
+        workflowManagement.setSelectedWorkflow(matchingWorkflow.id);
+        // Mark as interacted for existing sessions
+        setUserHasInteracted(true);
+      } else {
+        workflowManagement.setActiveWorkflow("custom");
+        workflowManagement.setSelectedWorkflow("custom");
+        setUserHasInteracted(true);
+      }
+      workflowLoadedFromSessionRef.current = true;
+    }
+  }, [session, ootbWorkflows, workflowManagement, hasRealMessages]);
 
   // Auto-refresh artifacts when messages complete
   // UX improvement: Automatically refresh the artifacts panel when Claude writes new files,
@@ -1802,6 +1809,7 @@ export default function ProjectSessionDetailPage({
                         isRunActive={isRunActive}
                         showWelcomeExperience={true}
                         activeWorkflow={workflowManagement.activeWorkflow}
+                        userHasInteracted={userHasInteracted}
                         welcomeExperienceComponent={
                           <WelcomeExperience
                             ootbWorkflows={ootbWorkflows}
