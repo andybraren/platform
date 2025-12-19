@@ -389,8 +389,8 @@ export function WelcomeExperience({
         </div>
       )}
 
-      {/* Setup message after workflow selection */}
-      {selectedWorkflowId && (
+      {/* Setup message after workflow selection - only show if no real messages yet */}
+      {selectedWorkflowId && !hasRealMessages && (
         <div className="mb-4 mt-2">
           <div className="flex space-x-3 items-start">
             {/* Avatar */}
@@ -419,7 +419,7 @@ export function WelcomeExperience({
                   ) : (
                     <>
                       {setupDisplayedText}
-                      {hasRealMessages ? "..." : ".".repeat(dotCount)}
+                      {".".repeat(dotCount)}
                     </>
                   )}
                 </p>
