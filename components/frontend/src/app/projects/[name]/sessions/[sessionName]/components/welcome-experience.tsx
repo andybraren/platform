@@ -116,6 +116,7 @@ export function WelcomeExperience({
   }, [isSetupTypingComplete, hasRealMessages]);
 
   const handleWorkflowSelect = (workflowId: string) => {
+    console.log('[WelcomeExperience] Workflow selected:', workflowId);
     setSelectedWorkflowId(workflowId);
     onWorkflowSelect(workflowId);
     onUserInteraction();
@@ -138,6 +139,18 @@ export function WelcomeExperience({
       if (!aHasPRD && bHasPRD) return 1;
       return 0; // Keep original order for items in the same category
     });
+
+  // Debug logging to trace workflow rendering
+  useEffect(() => {
+    if (enabledWorkflows.length > 0) {
+      console.log('[WelcomeExperience] Enabled workflows:', enabledWorkflows.map((w, idx) => ({
+        index: idx,
+        id: w.id,
+        name: w.name,
+        description: w.description?.substring(0, 50) + '...'
+      })));
+    }
+  }, [enabledWorkflows]);
 
   // Filter workflows based on search query (for dropdown - includes all workflows)
   const filteredWorkflows = ootbWorkflows.filter((workflow) => {
@@ -247,19 +260,12 @@ export function WelcomeExperience({
                 }}
               >
                 <CardContent className="p-3 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className={cn(
-                      "text-sm font-semibold",
-                      selectedWorkflowId !== null && selectedWorkflowId !== workflow.id && "text-muted-foreground/60"
-                    )}>
-                      {workflow.name}
-                    </h3>
-                    {selectedWorkflowId === workflow.id && (
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                        Selected
-                      </Badge>
-                    )}
-                  </div>
+                  <h3 className={cn(
+                    "text-sm font-semibold",
+                    selectedWorkflowId !== null && selectedWorkflowId !== workflow.id && "text-muted-foreground/60"
+                  )}>
+                    {workflow.name}
+                  </h3>
                   <p className={cn(
                     "text-xs line-clamp-2",
                     selectedWorkflowId !== null && selectedWorkflowId !== workflow.id
