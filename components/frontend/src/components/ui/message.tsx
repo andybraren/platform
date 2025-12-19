@@ -212,7 +212,7 @@ export const Message = React.forwardRef<HTMLDivElement, MessageProps>(
               </div>
             )}
             <div className={cn(
-              borderless ? "p-0" : "rounded-lg py-3",
+              borderless ? "p-0" : "rounded-lg",
               !borderless && (isBot ? "bg-card" : "bg-border/30")
             )}>
               {/* Content */}
