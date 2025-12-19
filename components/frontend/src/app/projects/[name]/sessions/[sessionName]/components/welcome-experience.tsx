@@ -26,9 +26,7 @@ type WelcomeExperienceProps = {
   onLoadWorkflow?: () => void;
 };
 
-const WELCOME_MESSAGE = `Welcome to Ambient AI! Your workspace and your team's context is being loaded.
-
-Please select a workflow or type a message to get started.`;
+const WELCOME_MESSAGE = `Welcome to Ambient AI! Please select a workflow or type a message to get started.`;
 const SETUP_MESSAGE = `Great! Give me a moment to get set up`;
 
 export function WelcomeExperience({
@@ -175,6 +173,17 @@ export function WelcomeExperience({
               transform: translateY(0);
             }
           }
+          @keyframes fadeInChar {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
+          }
+          .char-fade-in {
+            animation: fadeInChar 0.15s ease-in;
+          }
         `
       }} />
     <div className="space-y-4">
@@ -195,9 +204,18 @@ export function WelcomeExperience({
             <div className="rounded-lg bg-card">
               {/* Content */}
               <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap mb-[0.2rem]">
-                {displayedText}
-                {shouldShowAnimation && !isTypingComplete && (
-                  <span className="inline-block w-1 h-4 ml-0.5 bg-primary animate-pulse" />
+                {shouldShowAnimation && !isTypingComplete ? (
+                  <>
+                    {displayedText.slice(0, -3)}
+                    {displayedText.slice(-3).split('').map((char, idx) => (
+                      <span key={displayedText.length - 3 + idx} className="char-fade-in">
+                        {char}
+                      </span>
+                    ))}
+                    <span className="inline-block w-1 h-4 ml-0.5 bg-primary animate-pulse" />
+                  </>
+                ) : (
+                  displayedText
                 )}
               </p>
             </div>
@@ -385,10 +403,21 @@ export function WelcomeExperience({
               <div className="rounded-lg bg-card">
                 {/* Content */}
                 <p className="text-sm text-muted-foreground leading-relaxed mb-[0.2rem]">
-                  {setupDisplayedText}
-                  {isSetupTypingComplete && (hasRealMessages ? "..." : ".".repeat(dotCount))}
-                  {!isSetupTypingComplete && (
-                    <span className="inline-block w-1 h-4 ml-0.5 bg-primary animate-pulse" />
+                  {!isSetupTypingComplete ? (
+                    <>
+                      {setupDisplayedText.slice(0, -3)}
+                      {setupDisplayedText.slice(-3).split('').map((char, idx) => (
+                        <span key={setupDisplayedText.length - 3 + idx} className="char-fade-in">
+                          {char}
+                        </span>
+                      ))}
+                      <span className="inline-block w-1 h-4 ml-0.5 bg-primary animate-pulse" />
+                    </>
+                  ) : (
+                    <>
+                      {setupDisplayedText}
+                      {hasRealMessages ? "..." : ".".repeat(dotCount)}
+                    </>
                   )}
                 </p>
               </div>
