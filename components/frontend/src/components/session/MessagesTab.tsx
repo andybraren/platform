@@ -44,6 +44,7 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
   const [showSystemMessages, setShowSystemMessages] = useState(false);
   const [agentsPopoverOpen, setAgentsPopoverOpen] = useState(false);
   const [commandsPopoverOpen, setCommandsPopoverOpen] = useState(false);
+  const [waitingDotCount, setWaitingDotCount] = useState(0);
   
   // Autocomplete state
   const [autocompleteOpen, setAutocompleteOpen] = useState(false);
@@ -115,6 +116,17 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
   useEffect(() => {
     scrollToBottom();
   }, []);
+
+  // Animate dots for "Please wait one moment" message
+  useEffect(() => {
+    if (queuedMessages.length === 0) return;
+
+    const interval = setInterval(() => {
+      setWaitingDotCount((prev) => (prev + 1) % 4); // Cycles 0, 1, 2, 3
+    }, 500); // Change dot every 500ms
+
+    return () => clearInterval(interval);
+  }, [queuedMessages.length]);
 
   // Click outside to close autocomplete
   useEffect(() => {
@@ -310,9 +322,26 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
 
         {/* Show "Please wait" message after queued messages */}
         {queuedMessages.length > 0 && (
-          <div className="pl-12 pr-4 py-2">
-            <div className="text-sm text-muted-foreground">
-              Please wait one moment<LoadingDots />
+          <div className="mb-4 mt-2">
+            <div className="flex space-x-3 items-start">
+              {/* Avatar */}
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-600">
+                  <span className="text-white text-xs font-semibold">AI</span>
+                </div>
+              </div>
+
+              {/* Message Content */}
+              <div className="flex-1 min-w-0">
+                {/* Timestamp */}
+                <div className="text-[10px] text-muted-foreground/60 mb-1">just now</div>
+                <div className="rounded-lg bg-card">
+                  {/* Content */}
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-[0.2rem]">
+                    Please wait one moment{".".repeat(waitingDotCount)}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}

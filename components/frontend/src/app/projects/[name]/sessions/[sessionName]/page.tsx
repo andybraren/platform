@@ -259,6 +259,23 @@ export default function ProjectSessionDetailPage({
     onWorkflowActivated: refetchSession,
   });
 
+  // Poll session status when workflow is queued
+  useEffect(() => {
+    if (!workflowManagement.queuedWorkflow) return;
+    
+    const phase = session?.status?.phase;
+    
+    // If already running, we'll process workflow in the next effect
+    if (phase === "Running") return;
+    
+    // Poll every 2 seconds to check if session is ready
+    const pollInterval = setInterval(() => {
+      refetchSession();
+    }, 2000);
+    
+    return () => clearInterval(pollInterval);
+  }, [workflowManagement.queuedWorkflow, session?.status?.phase, refetchSession]);
+
   // Process queued workflow when session becomes Running
   useEffect(() => {
     const phase = session?.status?.phase;
@@ -268,6 +285,23 @@ export default function ProjectSessionDetailPage({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.status?.phase, workflowManagement.queuedWorkflow]);
+
+  // Poll session status when messages are queued
+  useEffect(() => {
+    if (queuedMessages.length === 0) return;
+    
+    const phase = session?.status?.phase;
+    
+    // If already running, we'll process messages in the next effect
+    if (phase === "Running") return;
+    
+    // Poll every 2 seconds to check if session is ready
+    const pollInterval = setInterval(() => {
+      refetchSession();
+    }, 2000);
+    
+    return () => clearInterval(pollInterval);
+  }, [queuedMessages.length, session?.status?.phase, refetchSession]);
 
   // Process queued messages when session becomes Running
   useEffect(() => {
