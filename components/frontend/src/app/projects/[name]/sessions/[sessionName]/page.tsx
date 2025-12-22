@@ -1055,8 +1055,10 @@ export default function ProjectSessionDetailPage({
 
     // Sync workflow from session whenever it's set in the API
     if (session.spec?.activeWorkflow) {
-      const gitUrl = session.spec.activeWorkflow.gitUrl;
-      const matchingWorkflow = ootbWorkflows.find((w) => w.gitUrl === gitUrl);
+      // Match by path (e.g., "workflows/spec-kit") - this uniquely identifies each OOTB workflow
+      // Don't match by gitUrl since all OOTB workflows share the same repo URL
+      const activePath = session.spec.activeWorkflow.path;
+      const matchingWorkflow = ootbWorkflows.find((w) => w.path === activePath);
       if (matchingWorkflow) {
         workflowManagement.setActiveWorkflow(matchingWorkflow.id);
         workflowManagement.setSelectedWorkflow(matchingWorkflow.id);
@@ -1065,6 +1067,7 @@ export default function ProjectSessionDetailPage({
           setUserHasInteracted(true);
         }
       } else {
+        // No matching OOTB workflow found - treat as custom workflow
         workflowManagement.setActiveWorkflow("custom");
         workflowManagement.setSelectedWorkflow("custom");
         if (hasRealMessages) {
