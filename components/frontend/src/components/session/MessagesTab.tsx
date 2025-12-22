@@ -298,8 +298,8 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
         onScroll={handleScroll}
         className="flex-1 flex flex-col gap-2 overflow-y-auto p-3 scrollbar-thin"
       >
-        {/* Show welcome experience if active AND there are no real messages */}
-        {showWelcomeExperience && !hasRealMessages && welcomeExperienceComponent}
+        {/* Show welcome experience if active - let the component handle its own visibility logic */}
+        {showWelcomeExperience && welcomeExperienceComponent}
 
         {/* Show filtered messages only if workflow is selected or welcome experience is not shown */}
         {shouldShowMessages && filteredMessages.map((m, idx) => (
