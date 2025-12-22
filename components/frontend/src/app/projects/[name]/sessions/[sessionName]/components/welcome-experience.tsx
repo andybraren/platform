@@ -140,14 +140,16 @@ export function WelcomeExperience({
 
 
   // Filter workflows based on search query (for dropdown - includes all workflows)
-  const filteredWorkflows = ootbWorkflows.filter((workflow) => {
-    if (!workflowSearch) return true;
-    const searchLower = workflowSearch.toLowerCase();
-    return (
-      workflow.name.toLowerCase().includes(searchLower) ||
-      workflow.description.toLowerCase().includes(searchLower)
-    );
-  });
+  const filteredWorkflows = ootbWorkflows
+    .filter((workflow) => {
+      if (!workflowSearch) return true;
+      const searchLower = workflowSearch.toLowerCase();
+      return (
+        workflow.name.toLowerCase().includes(searchLower) ||
+        workflow.description.toLowerCase().includes(searchLower)
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically by display name
 
   // Filter for general chat based on search
   const showGeneralChat = !workflowSearch || 
@@ -287,17 +289,20 @@ export function WelcomeExperience({
                 {/* Workflow items */}
                 <div className="max-h-[400px] overflow-y-auto">
                   {showGeneralChat && (
-                    <DropdownMenuItem
-                      onClick={() => handleWorkflowSelect("none")}
-                      disabled={selectedWorkflowId !== null}
-                    >
-                      <div className="flex flex-col items-start gap-0.5 py-1 w-full">
-                        <span>General chat</span>
-                        <span className="text-xs text-muted-foreground font-normal line-clamp-2">
-                          A general chat session with no structured workflow.
-                        </span>
-                      </div>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => handleWorkflowSelect("none")}
+                        disabled={selectedWorkflowId !== null}
+                      >
+                        <div className="flex flex-col items-start gap-0.5 py-1 w-full">
+                          <span>General chat</span>
+                          <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                            A general chat session with no structured workflow.
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                      {filteredWorkflows.length > 0 && <DropdownMenuSeparator />}
+                    </>
                   )}
                   {filteredWorkflows.map((workflow) => (
                     <DropdownMenuItem

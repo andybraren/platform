@@ -37,14 +37,16 @@ export function WorkflowsAccordion({
   const isSessionStopped = sessionPhase === 'Stopped' || sessionPhase === 'Error' || sessionPhase === 'Completed';
 
   // Filter workflows based on search query
-  const filteredWorkflows = ootbWorkflows.filter((workflow) => {
-    if (!workflowSearch) return true;
-    const searchLower = workflowSearch.toLowerCase();
-    return (
-      workflow.name.toLowerCase().includes(searchLower) ||
-      workflow.description.toLowerCase().includes(searchLower)
-    );
-  });
+  const filteredWorkflows = ootbWorkflows
+    .filter((workflow) => {
+      if (!workflowSearch) return true;
+      const searchLower = workflowSearch.toLowerCase();
+      return (
+        workflow.name.toLowerCase().includes(searchLower) ||
+        workflow.description.toLowerCase().includes(searchLower)
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically by display name
 
   // Filter for general chat based on search
   const showGeneralChat = !workflowSearch || 
@@ -186,20 +188,23 @@ export function WorkflowsAccordion({
                   {/* Workflow items */}
                   <div className="max-h-[400px] overflow-y-auto">
                     {showGeneralChat && (
-                      <button
-                        onClick={() => handleWorkflowSelect("none")}
-                        className={cn(
-                          "w-full text-left px-2 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer",
-                          selectedWorkflow === "none" && "bg-accent"
-                        )}
-                      >
-                        <div className="flex flex-col items-start gap-0.5 py-1">
-                          <span className="text-sm">General chat</span>
-                          <span className="text-xs text-muted-foreground font-normal line-clamp-2">
-                            A general chat session with no structured workflow.
-                          </span>
-                        </div>
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleWorkflowSelect("none")}
+                          className={cn(
+                            "w-full text-left px-2 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer",
+                            selectedWorkflow === "none" && "bg-accent"
+                          )}
+                        >
+                          <div className="flex flex-col items-start gap-0.5 py-1">
+                            <span className="text-sm">General chat</span>
+                            <span className="text-xs text-muted-foreground font-normal line-clamp-2">
+                              A general chat session with no structured workflow.
+                            </span>
+                          </div>
+                        </button>
+                        {filteredWorkflows.length > 0 && <div className="border-t my-1" />}
+                      </>
                     )}
                     {filteredWorkflows.map((workflow) => (
                       <button
