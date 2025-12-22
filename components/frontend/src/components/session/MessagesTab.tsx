@@ -296,7 +296,7 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
       <div 
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="flex-1 flex flex-col gap-2 overflow-y-auto px-3 pb-2 scrollbar-thin"
+        className="flex-1 flex flex-col gap-2 overflow-y-auto p-3 scrollbar-thin"
       >
         {/* Show welcome experience if active AND there are no real messages */}
         {showWelcomeExperience && !hasRealMessages && welcomeExperienceComponent}
