@@ -35,10 +35,11 @@ export type MessagesTabProps = {
   userHasInteracted?: boolean;  // Track if user has sent any messages
   queuedMessages?: string[];  // Messages queued while session wasn't running
   queuedMessagesSent?: boolean;  // Track if queued messages have been sent
+  hasRealMessages?: boolean;  // Track if there are real user/agent messages
 };
 
 
-const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chatInput, setChatInput, onSendChat, onInterrupt, onEndSession, onGoToResults, onContinue, workflowMetadata, onCommandClick, isRunActive = false, showWelcomeExperience, welcomeExperienceComponent, activeWorkflow, userHasInteracted = false, queuedMessages = [], queuedMessagesSent = false }) => {
+const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chatInput, setChatInput, onSendChat, onInterrupt, onEndSession, onGoToResults, onContinue, workflowMetadata, onCommandClick, isRunActive = false, showWelcomeExperience, welcomeExperienceComponent, activeWorkflow, userHasInteracted = false, queuedMessages = [], queuedMessagesSent = false, hasRealMessages = false }) => {
   const [interrupting, setInterrupting] = useState(false);
   const [ending, setEnding] = useState(false);
   const [sendingChat, setSendingChat] = useState(false);
@@ -287,7 +288,8 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
 
   // Determine if we should show messages
   // Messages should be hidden until workflow is selected OR user sends a message when welcome experience is active
-  const shouldShowMessages = !showWelcomeExperience || activeWorkflow || userHasInteracted;
+  // BUT always show messages if there are real messages (e.g., when loading an existing session with messages)
+  const shouldShowMessages = !showWelcomeExperience || activeWorkflow || userHasInteracted || hasRealMessages;
 
   return (
     <div className="flex flex-col h-full">
@@ -296,8 +298,8 @@ const MessagesTab: React.FC<MessagesTabProps> = ({ session, streamMessages, chat
         onScroll={handleScroll}
         className="flex-1 flex flex-col gap-2 overflow-y-auto px-3 pb-2 scrollbar-thin"
       >
-        {/* Show welcome experience if active */}
-        {showWelcomeExperience && welcomeExperienceComponent}
+        {/* Show welcome experience if active AND there are no real messages */}
+        {showWelcomeExperience && !hasRealMessages && welcomeExperienceComponent}
 
         {/* Show filtered messages only if workflow is selected or welcome experience is not shown */}
         {shouldShowMessages && filteredMessages.map((m, idx) => (

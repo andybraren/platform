@@ -1913,6 +1913,7 @@ export default function ProjectSessionDetailPage({
                         userHasInteracted={userHasInteracted}
                         queuedMessages={queuedMessages}
                         queuedMessagesSent={queuedMessagesSent}
+                        hasRealMessages={hasRealMessages}
                         welcomeExperienceComponent={
                           <WelcomeExperience
                             ootbWorkflows={ootbWorkflows}
