@@ -47,7 +47,7 @@ export function useWorkflowManagement({
     setWorkflowActivating(true);
     
     try {
-      // 1. Update CR with workflow configuration
+      // Update CR with workflow configuration
       const response = await fetch(`/api/projects/${projectName}/agentic-sessions/${sessionName}/workflow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -63,17 +63,6 @@ export function useWorkflowManagement({
         throw new Error(errorData.error || "Failed to update workflow");
       }
       
-      // 2. Call the workflow endpoint to update the active workflow
-      await fetch(`/api/projects/${projectName}/agentic-sessions/${sessionName}/workflow`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gitUrl: workflow.gitUrl,
-          branch: workflow.branch,
-          path: workflow.path || "",
-        }),
-      });
-      
       setActiveWorkflow(workflow.id);
       setPendingWorkflow(null);
       setQueuedWorkflow(null);
@@ -88,6 +77,7 @@ export function useWorkflowManagement({
       console.error("Failed to activate workflow:", error);
       errorToast(error instanceof Error ? error.message : "Failed to activate workflow");
       setQueuedWorkflow(null);
+      setWorkflowActivating(false);
       return false;
     } finally {
       setWorkflowActivating(false);
