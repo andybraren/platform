@@ -23,6 +23,7 @@ type WelcomeExperienceProps = {
   sessionPhase?: string;
   hasRealMessages: boolean;
   onLoadWorkflow?: () => void;
+  selectedWorkflow?: string;
 };
 
 const WELCOME_MESSAGE = `Welcome to Ambient AI! Please select a workflow or type a message to get started.`;
@@ -36,16 +37,19 @@ export function WelcomeExperience({
   sessionPhase,
   hasRealMessages,
   onLoadWorkflow,
+  selectedWorkflow = "none",
 }: WelcomeExperienceProps) {
   const [displayedText, setDisplayedText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
-  const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
   const [cardsEverShown, setCardsEverShown] = useState(false);
   const [setupDisplayedText, setSetupDisplayedText] = useState("");
   const [isSetupTypingComplete, setIsSetupTypingComplete] = useState(false);
   const [dotCount, setDotCount] = useState(0);
   const [workflowSearch, setWorkflowSearch] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
+  
+  // Use the selectedWorkflow prop to determine which workflow is currently selected
+  const selectedWorkflowId = selectedWorkflow !== "none" ? selectedWorkflow : null;
 
   // Determine if we should show workflow cards and animation
   // Show animation unless we know for certain the session has already started running or user has interacted
@@ -115,7 +119,6 @@ export function WelcomeExperience({
   }, [isSetupTypingComplete, hasRealMessages]);
 
   const handleWorkflowSelect = (workflowId: string) => {
-    setSelectedWorkflowId(workflowId);
     onWorkflowSelect(workflowId);
     onUserInteraction();
   };

@@ -1923,6 +1923,7 @@ export default function ProjectSessionDetailPage({
                             sessionPhase={session?.status?.phase}
                             hasRealMessages={hasRealMessages}
                             onLoadWorkflow={() => setCustomWorkflowDialogOpen(true)}
+                            selectedWorkflow={workflowManagement.selectedWorkflow}
                           />
                         }
                       />
