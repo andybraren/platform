@@ -143,20 +143,15 @@ export function FeedbackModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {isPositive ? (
-              <>
-                <ThumbsUp className="h-5 w-5 text-green-500" />
-                <span>Thanks for the positive feedback!</span>
-              </>
+              <ThumbsUp className="h-5 w-5 text-green-500" />
             ) : (
-              <>
-                <ThumbsDown className="h-5 w-5 text-red-500" />
-                <span>We&apos;re sorry this wasn&apos;t helpful</span>
-              </>
+              <ThumbsDown className="h-5 w-5 text-red-500" />
             )}
+            <span>Share feedback</span>
           </DialogTitle>
           <DialogDescription>
             {isPositive
-              ? "Help us understand what worked well."
+              ? "Help us improve by sharing what went well."
               : "Help us improve by sharing what went wrong."}
           </DialogDescription>
         </DialogHeader>
@@ -171,8 +166,8 @@ export function FeedbackModal({
               id="feedback-comment"
               placeholder={
                 isPositive
-                  ? "What did you find helpful about this response?"
-                  : "What could be improved? Was the response inaccurate, unclear, or incomplete?"
+                  ? "What was good about this response?"
+                  : "What could be improved above this response?"
               }
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -193,7 +188,7 @@ export function FeedbackModal({
                 htmlFor="include-transcript"
                 className="text-sm font-medium cursor-pointer"
               >
-                Include chat transcript with feedback
+                Include full transcript
               </Label>
               <p className="text-xs text-muted-foreground">
                 This helps us understand the full context of your experience.
@@ -241,7 +236,7 @@ export function FeedbackModal({
           </Button>
           <Button onClick={handleSubmit} disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Submit Feedback
+            Send feedback
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -66,7 +66,7 @@ export function FeedbackButtons({
                   "hover:bg-green-500/10 focus:outline-none focus:ring-2 focus:ring-green-500/30",
                   isPositiveSubmitted
                     ? "text-green-500 bg-green-500/10 cursor-default"
-                    : "text-muted-foreground hover:text-green-500"
+                    : "text-muted-foreground hover:text-green-500 cursor-pointer"
                 )}
                 aria-label={isPositiveSubmitted ? "Positive feedback submitted" : "This response was helpful"}
               >
@@ -96,7 +96,7 @@ export function FeedbackButtons({
                   "hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/30",
                   isNegativeSubmitted
                     ? "text-red-500 bg-red-500/10 cursor-default"
-                    : "text-muted-foreground hover:text-red-500"
+                    : "text-muted-foreground hover:text-red-500 cursor-pointer"
                 )}
                 aria-label={isNegativeSubmitted ? "Negative feedback submitted" : "This response was not helpful"}
               >
