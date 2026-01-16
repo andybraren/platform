@@ -188,7 +188,7 @@ export function FeedbackModal({
                 htmlFor="include-transcript"
                 className="text-sm font-medium cursor-pointer"
               >
-                Include previous messages
+                Include all messages
               </Label>
               <p className="text-xs text-muted-foreground">
                 This helps us understand the full context of your experience.
