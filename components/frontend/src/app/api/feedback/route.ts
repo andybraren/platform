@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getLangfuseClient } from '@/lib/langfuseClient';
 
 /**
  * POST /api/feedback
  * 
  * Sends user feedback to Langfuse as a score.
- * This route acts as a proxy to protect the Langfuse secret key.
+ * This route builds rich context from the session and sends it to Langfuse
+ * using the LangfuseWeb SDK (public key only - no secret key needed).
  * 
  * Request body:
  * - traceId: string (optional - if we have a trace ID from the session)
@@ -54,12 +56,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get Langfuse configuration from environment
-    const publicKey = process.env.LANGFUSE_PUBLIC_KEY;
-    const secretKey = process.env.LANGFUSE_SECRET_KEY;
-    const host = process.env.LANGFUSE_HOST || process.env.NEXT_PUBLIC_LANGFUSE_HOST;
+    // Get Langfuse client (uses public key only)
+    const langfuse = getLangfuseClient();
 
-    if (!publicKey || !secretKey || !host) {
+    if (!langfuse) {
       console.warn('Langfuse not configured - feedback will not be recorded');
       return NextResponse.json({ 
         success: false, 
@@ -93,56 +93,20 @@ export async function POST(request: NextRequest) {
 
     const fullComment = feedbackParts.join('\n');
 
-    // Prepare the score payload for Langfuse
-    // If we don't have a traceId, we create a standalone score event
-    const scorePayload = {
+    // Determine the traceId to use
+    const effectiveTraceId = traceId || `feedback-${sessionName}-${Date.now()}`;
+
+    // Send feedback using LangfuseWeb SDK
+    langfuse.score({
+      traceId: effectiveTraceId,
       name: 'user-feedback',
       value: value,
       comment: fullComment,
-      // Include metadata for filtering in Langfuse
-      dataType: 'NUMERIC' as const,
-    };
-
-    // If we have a traceId, attach the score to that trace
-    // Otherwise, we create the score and associate with session metadata
-    const endpoint = traceId 
-      ? `${host}/api/public/scores`
-      : `${host}/api/public/scores`;
-
-    const payload = traceId 
-      ? { ...scorePayload, traceId }
-      : { 
-          ...scorePayload, 
-          // When no traceId, include identifying metadata
-          traceId: `feedback-${sessionName}-${Date.now()}`,
-        };
-
-    // Send to Langfuse API
-    const authHeader = Buffer.from(`${publicKey}:${secretKey}`).toString('base64');
-    
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${authHeader}`,
-      },
-      body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Langfuse API error:', response.status, errorText);
-      return NextResponse.json(
-        { error: 'Failed to submit feedback to Langfuse' },
-        { status: 500 }
-      );
-    }
-
-    const result = await response.json();
-    
     return NextResponse.json({ 
       success: true, 
-      scoreId: result.id,
+      traceId: effectiveTraceId,
       message: 'Feedback submitted successfully' 
     });
 
