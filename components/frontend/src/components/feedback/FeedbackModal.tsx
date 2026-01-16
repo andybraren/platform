@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { ThumbsUp, ThumbsDown, Loader2, AlertTriangle } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Loader2, Info } from "lucide-react";
 import { useFeedbackContextOptional } from "@/contexts/FeedbackContext";
 import type { MessageObject, ToolUseMessages } from "@/types/agentic-session";
 
@@ -188,7 +188,7 @@ export function FeedbackModal({
                 htmlFor="include-transcript"
                 className="text-sm font-medium cursor-pointer"
               >
-                Include full transcript
+                Include previous messages
               </Label>
               <p className="text-xs text-muted-foreground">
                 This helps us understand the full context of your experience.
@@ -197,29 +197,16 @@ export function FeedbackModal({
           </div>
 
           {/* Privacy disclaimer */}
-          <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-2">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0 text-amber-500" />
-              <div>
-                <p className="font-medium text-foreground">Privacy Notice</p>
-                <ul className="list-disc list-inside mt-1 space-y-1">
-                  <li>
-                    Your feedback will be stored in our observability system to improve the platform.
-                  </li>
-                  <li>
-                    Your username and session details will be associated with this feedback.
-                  </li>
-                  {includeTranscript && (
-                    <li className="text-amber-600 dark:text-amber-400">
-                      The chat transcript you&apos;ve opted to include may contain sensitive information from your session.
-                    </li>
-                  )}
-                  <li>
-                    Feedback data is used solely for improving the Ambient Code Platform experience.
-                  </li>
-                </ul>
-              </div>
+          <div className="rounded-md border border-border/50 bg-muted/30 px-3 py-2.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Info className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="font-medium">Privacy</span>
             </div>
+            <p>
+              {includeTranscript
+                ? "Your feedback and all messages in this session will be stored to help improve the platform."
+                : "Your feedback and this message will be stored to help improve the platform."}
+            </p>
           </div>
 
           {/* Error message */}
