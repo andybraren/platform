@@ -165,7 +165,7 @@ export function FeedbackModal({
               placeholder={
                 isPositive
                   ? "What was good about this response?"
-                  : "What could be improved above this response?"
+                  : "What could be improved about this response?"
               }
               value={comment}
               onChange={(e) => setComment(e.target.value)}
