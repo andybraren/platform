@@ -318,6 +318,7 @@ async def handle_feedback(event: FeedbackEvent):
         project_name = payload.get("projectName", "")
         session_name = payload.get("sessionName", "")
         message_id = payload.get("messageId", "")
+        trace_id = payload.get("traceId", "")  # Langfuse trace ID for specific turn association
         comment = payload.get("comment", "")
         reason = payload.get("reason", "")
         workflow = payload.get("workflow", "")
@@ -325,8 +326,8 @@ async def handle_feedback(event: FeedbackEvent):
         include_transcript = payload.get("includeTranscript", False)
         transcript = payload.get("transcript", [])
         
-        # Map metaType to numeric value (1 = positive, 0 = negative)
-        value = 1 if event.metaType == "thumbs_up" else 0
+        # Map metaType to boolean value (True = positive, False = negative)
+        value = True if event.metaType == "thumbs_up" else False
         
         # Build comment string with context
         comment_parts = []
@@ -363,10 +364,6 @@ async def handle_feedback(event: FeedbackEvent):
                         host=host,
                     )
                     
-                    # Generate trace ID if not provided
-                    # Use session name as base for trace ID to group feedback with session traces
-                    trace_id = f"feedback-{session_name}-{event.ts or int(__import__('time').time() * 1000)}"
-                    
                     # Build metadata for structured filtering in Langfuse UI
                     metadata = {
                         "project": project_name,
@@ -379,11 +376,14 @@ async def handle_feedback(event: FeedbackEvent):
                     if message_id:
                         metadata["messageId"] = message_id
                     
-                    # Send score to Langfuse
-                    langfuse.score(
-                        trace_id=trace_id,
+                    # Create score directly using create_score() API
+                    # Prefer trace_id (specific turn) over session_id (whole session)
+                    # Langfuse expects trace_id OR session_id, not both
+                    langfuse.create_score(
                         name="user-feedback",
                         value=value,
+                        trace_id=trace_id,
+                        data_type="BOOLEAN",
                         comment=feedback_comment,
                         metadata=metadata,
                     )
@@ -391,13 +391,17 @@ async def handle_feedback(event: FeedbackEvent):
                     # Flush immediately to ensure feedback is sent
                     langfuse.flush()
                     
-                    logger.info(f"Langfuse: Feedback score sent (trace_id={trace_id}, value={value})")
+                    # Log success after flush completes
+                    if trace_id:
+                        logger.info(f"Langfuse: Feedback score sent successfully (trace_id={trace_id}, value={value})")
+                    else:
+                        logger.info(f"Langfuse: Feedback score sent successfully (session={session_name}, value={value})")
                 else:
                     logger.warning("Langfuse enabled but missing credentials")
             except ImportError:
                 logger.warning("Langfuse not available - feedback will not be recorded")
             except Exception as e:
-                logger.error(f"Failed to send feedback to Langfuse: {e}")
+                logger.error(f"Failed to send feedback to Langfuse: {e}", exc_info=True)
         else:
             logger.info("Langfuse not enabled - feedback logged but not sent to Langfuse")
         
