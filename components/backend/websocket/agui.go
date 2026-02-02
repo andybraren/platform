@@ -125,7 +125,7 @@ func RouteAGUIEvent(sessionID string, event map[string]interface{}) {
 	if activeRunState == nil {
 		// Ensure timestamp is set before any early returns
 		if event["timestamp"] == nil || event["timestamp"] == "" {
-			event["timestamp"] = time.Now().UTC().Format(time.RFC3339Nano)
+			event["timestamp"] = time.Now().UTC().Format(types.AGUITimestampFormat)
 		}
 
 		// Don't create lazy runs for terminal events - they should only apply to existing runs
@@ -177,7 +177,7 @@ func RouteAGUIEvent(sessionID string, event map[string]interface{}) {
 	}
 	// Add timestamp if not present - critical for message timestamp tracking
 	if event["timestamp"] == nil || event["timestamp"] == "" {
-		event["timestamp"] = time.Now().UTC().Format(time.RFC3339Nano)
+		event["timestamp"] = time.Now().UTC().Format(types.AGUITimestampFormat)
 	}
 
 	// Broadcast to run-specific SSE subscribers

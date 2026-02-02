@@ -283,7 +283,7 @@ func handleStreamedEvent(sessionID, runID, threadID, jsonData string, runState *
 	}
 	// Add timestamp if not present - critical for message timestamp tracking
 	if _, ok := event["timestamp"]; !ok {
-		event["timestamp"] = time.Now().UTC().Format(time.RFC3339Nano)
+		event["timestamp"] = time.Now().UTC().Format(types.AGUITimestampFormat)
 	}
 
 	// Check for terminal events
