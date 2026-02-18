@@ -1,0 +1,27 @@
+title: ambient-code.ai
+description: "// breakthrough software engineering concepts"
+url: "https://ambient-code.ai"
+baseurl: ""
+
+permalink: /posts/:slug/
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md

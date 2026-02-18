@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include head.html %}
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="{{ '/' | relative_url }}" class="logo">
+          <span class="logo-text">ambient-code</span><span class="logo-dot">.ai</span>
+        </a>
+        <nav>
+          <a href="{{ '/about/' | relative_url }}">About</a>
+          <a href="{{ '/philosophy/' | relative_url }}">Philosophy</a>
+          <a href="https://github.com/ambient-code" class="nav-gh">GitHub</a>
+        </nav>
+      </div>
+      <p class="tagline">// breakthrough software engineering concepts</p>
+    </div>
+  </header>
+
+  <main class="container">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-sig">ambient-code.ai</span>
+        <a href="https://github.com/ambient-code">github.com/ambient-code</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
