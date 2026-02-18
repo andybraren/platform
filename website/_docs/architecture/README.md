@@ -1,3 +1,5 @@
+---
+---
 # Architecture Documentation
 
 Technical architecture documentation for the Ambient Code Platform.

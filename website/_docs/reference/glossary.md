@@ -1,3 +1,5 @@
+---
+---
 # Glossary
 
 This glossary defines key terms, concepts, and acronyms used throughout the Ambient Code Platform system and documentation.

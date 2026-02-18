@@ -1,3 +1,5 @@
+---
+---
 # Getting Started with Ambient Code Platform
 
 Welcome to the Ambient Code Platform! This guide will get you from zero to running your first AI-powered agentic session.

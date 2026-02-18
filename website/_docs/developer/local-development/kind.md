@@ -1,3 +1,5 @@
+---
+---
 # Local Development with Kind
 
 Run the Ambient Code Platform locally using kind (Kubernetes in Podman/Docker) for development and testing.

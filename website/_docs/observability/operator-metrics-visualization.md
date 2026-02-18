@@ -1,3 +1,5 @@
+---
+---
 # Operator Metrics Visualization Guide
 
 Visualize Ambient Code operator metrics on OpenShift using User Workload Monitoring.

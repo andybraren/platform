@@ -1,3 +1,5 @@
+---
+---
 # GitLab Integration API Endpoints
 
 This document describes the GitLab integration API endpoints available in ACP.

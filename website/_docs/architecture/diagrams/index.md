@@ -1,3 +1,5 @@
+---
+---
 # Architecture Diagrams
 
 Visual representations of the Ambient Code Platform's structure and behavior.

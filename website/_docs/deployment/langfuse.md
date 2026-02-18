@@ -1,3 +1,5 @@
+---
+---
 # Langfuse Deployment
 
 This guide covers deploying Langfuse for LLM observability in the Ambient Code Platform.

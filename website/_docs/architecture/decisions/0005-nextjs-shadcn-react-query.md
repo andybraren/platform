@@ -1,3 +1,5 @@
+---
+---
 # ADR-0005: Next.js with Shadcn UI and React Query
 
 **Status:** Accepted

@@ -1,3 +1,5 @@
+---
+---
 # ADR-0004: Go Backend with Python Claude Runner
 
 **Status:** Accepted

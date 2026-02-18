@@ -1,3 +1,5 @@
+---
+---
 # E2E Testing Guide
 
 This guide provides comprehensive documentation for writing and maintaining end-to-end tests for the Ambient Code Platform.

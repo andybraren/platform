@@ -1,3 +1,5 @@
+---
+---
 # Claude Model Pricing
 
 This document lists all Claude models supported by the Ambient Code platform with their complete pricing configuration for Langfuse observability tracking.

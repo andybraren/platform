@@ -1,3 +1,5 @@
+---
+---
 # Git Authentication Setup
 
 The Ambient Code Platform supports **two independent git authentication methods** that serve different purposes:

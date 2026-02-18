@@ -1,3 +1,5 @@
+---
+---
 # ADR-0001: Kubernetes-Native Architecture
 
 **Status:** Accepted

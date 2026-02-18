@@ -1,3 +1,5 @@
+---
+---
 # Self-Hosted GitLab Configuration for Ambient Code Platform
 
 This guide covers everything you need to configure Ambient Code Platform with self-hosted GitLab instances (GitLab Community Edition or GitLab Enterprise Edition).

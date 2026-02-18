@@ -1,3 +1,5 @@
+---
+---
 # GitLab Personal Access Token Setup Guide
 
 This guide provides step-by-step instructions for creating a GitLab Personal Access Token (PAT) for use with Ambient Code Platform.

@@ -8,8 +8,6 @@ on:
     paths:
       - 'website/**'
       - 'docs/**'
-      - 'mkdocs.yml'
-      - 'requirements-docs.txt'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -29,7 +27,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ── Jekyll (landing page + blog) ──
+      # ── Copy docs into Jekyll collection ──
+      - name: Prepare docs collection
+        run: |
+          cp -r docs website/_docs
+          rm -rf website/_docs/archive
+
+          # Add permalink front matter to index.md so it serves at /docs/
+          { echo '---'; echo 'permalink: /docs/'; echo '---'; echo; cat website/_docs/index.md; } > website/_docs/index.md.tmp
+          mv website/_docs/index.md.tmp website/_docs/index.md
+
+          # Rewrite internal .md links to directory-style URLs for Jekyll
+          find website/_docs -name '*.md' -exec sed -i'' -E \
+            's|\]\(([^)]*[^/])\.md([#)])|\]\(\1/\2|g; s|\]\(([^)]*[^/])\.md\)|\]\(\1/\)|g' {} +
+
+      # ── Jekyll (full site: landing + blog + docs) ──
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -40,24 +52,6 @@ jobs:
       - name: Build Jekyll site
         run: bundle exec jekyll build --baseurl "/${{ github.event.repository.name }}"
         working-directory: website
-
-      # ── MkDocs (documentation) ──
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install MkDocs dependencies
-        run: pip install -r requirements-docs.txt
-
-      - name: Build MkDocs
-        run: python -m mkdocs build
-
-      # ── Combine outputs ──
-      - name: Merge MkDocs into Jekyll output
-        run: |
-          mkdir -p website/_site/docs
-          cp -r site/* website/_site/docs/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

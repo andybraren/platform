@@ -4,10 +4,15 @@ The **Ambient Code Platform** orchestrates AI-powered development sessions on Ku
 
 ## Quick Start
 
+**Prerequisites:** [Docker](https://docs.docker.com/get-docker/) (or Podman), [kind](https://kind.sigs.k8s.io/), and [kubectl](https://kubernetes.io/docs/tasks/tools/).
+
 ```bash
 git clone https://github.com/ambient-code/platform.git
 cd platform
 make kind-up
+
+# In a second terminal:
+make kind-port-forward
 # Open http://localhost:8080
 ```
 

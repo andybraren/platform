@@ -1,3 +1,5 @@
+---
+---
 # Observability & Monitoring
 
 Documentation for monitoring and observability features in the Ambient Code Platform.

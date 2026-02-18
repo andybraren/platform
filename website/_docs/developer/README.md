@@ -1,3 +1,5 @@
+---
+---
 # Developer Guide
 
 Welcome to the Ambient Code Platform developer guide! This section covers everything you need to contribute to the project.

@@ -1,3 +1,5 @@
+---
+---
 # Ambient Code Platform: Community & Documentation Revitalization Plan
 
 > **Status**: Draft | **Created**: 2026-02-18 | **Owner**: Community Lead

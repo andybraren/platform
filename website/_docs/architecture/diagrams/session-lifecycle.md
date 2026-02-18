@@ -1,3 +1,5 @@
+---
+---
 # Agentic Session Lifecycle
 
 Detailed flow showing how an agentic session progresses from creation through execution to completion and cleanup.

@@ -1,3 +1,5 @@
+---
+---
 # GitHub App Setup
 
 This guide explains how to configure a GitHub App for the Ambient Code Platform so users can browse repositories, clone, and push changes during agentic sessions and RFE seeding.

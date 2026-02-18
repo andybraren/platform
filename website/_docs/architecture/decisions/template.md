@@ -1,3 +1,5 @@
+---
+---
 # ADR-NNNN: [Short Title of Decision]
 
 **Status:** [Proposed | Accepted | Deprecated | Superseded by ADR-XXXX]

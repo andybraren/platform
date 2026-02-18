@@ -1,3 +1,5 @@
+---
+---
 # System Overview
 
 High-level architectural overview of the Ambient Code Platform showing all major components and their relationships.

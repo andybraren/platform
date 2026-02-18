@@ -1,3 +1,5 @@
+---
+---
 # GitLab Integration for Ambient Code Platform
 
 Ambient Code Platform now supports GitLab repositories alongside GitHub, enabling you to use your GitLab projects with AgenticSessions. This guide covers everything you need to know about using GitLab with Ambient Code Platform.

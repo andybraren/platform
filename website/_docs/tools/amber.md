@@ -1,3 +1,5 @@
+---
+---
 # Amber: Codebase Intelligence Agent
 
 [**Amber**](https://github.com/ambient-code/amber) is an AI-powered codebase intelligence agent for the Ambient Code Platform. It provides autonomous code maintenance, issue triage, and development assistance.

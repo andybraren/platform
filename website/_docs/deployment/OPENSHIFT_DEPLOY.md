@@ -1,3 +1,5 @@
+---
+---
 # OpenShift Deployment Guide
 
 The Ambient Code Platform is an OpenShift-native platform that deploys a backend API, frontend, and operator into a managed namespace.

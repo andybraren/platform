@@ -1,3 +1,5 @@
+---
+---
 ## OpenShift OAuth Setup (with oauth-proxy sidecar)
 
 This project secures the frontend using the OpenShift oauth-proxy sidecar. The proxy handles login against the cluster and forwards authenticated requests to the Next.js app.
