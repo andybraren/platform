@@ -8,8 +8,8 @@
   <header class="landing-header">
     <div class="landing-container">
       <div class="header-inner">
-        <a href="{{ '/' | relative_url }}" class="logo">
-          <span class="logo-text">ambient-code</span><span class="logo-dot">.ai</span>
+        <a href="{{ '/' | relative_url }}" class="logo" aria-label="ACP – Ambient Code Platform">
+          <span class="logo-mark"><span class="logo-a">A</span>CP</span>
         </a>
         <nav>
           <a href="{{ '/blog/' | relative_url }}">Blog</a>
@@ -26,7 +26,9 @@
   </header>
 
   <main>
-    <section class="hero">
+    <section class="hero" id="heroSection">
+      <div class="hero-chars" id="heroChars"></div>
+      <div class="hero-spotlight" id="heroSpotlight"></div>
       <div class="landing-container">
         <p class="hero-label">// open source AI automation platform</p>
         <h1 class="hero-title">
@@ -42,7 +44,8 @@
           <a href="https://github.com/ambient-code/platform" class="btn btn-outline">View on GitHub</a>
         </div>
         <div class="hero-code">
-          <span class="code-prompt">$</span> make kind-up && make kind-port-forward <span class="code-comment"># platform running at localhost:8080</span>
+          <span class="code-prompt">$</span> git clone https://github.com/ambient-code/platform.git && cd platform<br>
+          <span class="code-prompt">$</span> make quickstart <span class="code-comment"># platform running at localhost:8080</span>
         </div>
       </div>
     </section>
@@ -185,12 +188,238 @@
   <footer class="site-footer">
     <div class="landing-container">
       <div class="footer-inner">
-        <span class="footer-sig">ambient-code.ai</span>
+        <span class="footer-sig"><span class="logo-a">A</span>CP</span>
         <a href="https://github.com/ambient-code">github.com/ambient-code</a>
       </div>
     </div>
   </footer>
 
   {% include search-overlay.html %}
+
+  <script>
+  (function() {
+    var hero = document.getElementById('heroSection');
+    var container = document.getElementById('heroChars');
+    var spotlight = document.getElementById('heroSpotlight');
+    if (!hero || !container) return;
+
+    var SNIPPETS = [
+      'func reconcile(ctx context.Context) error {',
+      'const session = await createSession(prompt)',
+      'kubectl apply -f manifests/deploy.yaml',
+      'git push origin feature/agent-v2',
+      "import { useQuery } from '@tanstack/react-query'",
+      'def run_agent(config: AgentConfig):',
+      'apiVersion: vteam.ambient-code/v1alpha1',
+      'kind: AgenticSession',
+      'docker build -t runner:latest .',
+      'make build-all && make deploy',
+      'go test ./... -cover -race',
+      'npm run build && npm start',
+      'phase: Running → Completed',
+      'tokens: { input: 12847, output: 3291 }',
+      'return c.JSON(http.StatusOK, result)',
+      'watcher, err := client.Watch(ctx, opts)',
+      'operator.reconcile(session)',
+      'claude.execute(prompt, workspace)',
+      'for event := range watcher.ResultChan() {',
+      'const [data] = useSessionQuery(id)',
+      'helm upgrade ambient ./charts --atomic',
+      'pip install claude-code-sdk>=0.0.23',
+      'pod/runner-a8f3 ● Running',
+      'session.status.phase = "Completed"',
+      'git commit -m "feat: add multi-repo"',
+      'cr, err := dynamicClient.Create(ctx, obj)',
+      'export default function SessionPage() {',
+      'log.Printf("Session %s completed", name)',
+      'spec: { prompt: "Refactor auth module" }',
+      'resources: { limits: { memory: "2Gi" } }',
+      'ownerReferences: [{ controller: true }]',
+      'c.JSON(201, gin.H{"name": name, "uid": uid})',
+      'results.push({ status: "merged", pr: 142 })',
+      'securityContext: { runAsNonRoot: true }',
+      'SELECT * FROM sessions WHERE status = done',
+    ];
+
+    var MAX_ACTIVE = 12;
+    var SPAWN_MIN = 400;
+    var SPAWN_MAX = 900;
+    var TYPE_MIN = 12;
+    var TYPE_MAX = 25;
+    var LINGER_MIN = 200;
+    var LINGER_MAX = 700;
+    var FADE_MS = 1800;
+    var BASE_PEAK = 0.18;
+    var MAX_PEAK = 0.45;
+    var RADIUS = 300;
+
+    var active = [];
+    var mouseX = -9999;
+    var mouseY = -9999;
+    var rafId = null;
+    var recentIdx = [];
+    var contentEl = hero.querySelector('.landing-container');
+    var exc = { l: 0, t: 0, r: 100, b: 100 };
+
+    function updateExclusion() {
+      var hr = container.getBoundingClientRect();
+      var cr = contentEl.getBoundingClientRect();
+      var pad = 24;
+      exc = {
+        l: ((cr.left - hr.left - pad) / hr.width) * 100,
+        t: ((cr.top - hr.top - pad) / hr.height) * 100,
+        r: ((cr.right - hr.left + pad) / hr.width) * 100,
+        b: ((cr.bottom - hr.top + pad) / hr.height) * 100
+      };
+    }
+
+    updateExclusion();
+    window.addEventListener('resize', updateExclusion);
+
+    function pick() {
+      var pool = [];
+      for (var i = 0; i < SNIPPETS.length; i++) {
+        if (recentIdx.indexOf(i) === -1) pool.push(i);
+      }
+      if (!pool.length) { recentIdx = []; pool = SNIPPETS.map(function(_, i) { return i; }); }
+      var idx = pool[Math.floor(Math.random() * pool.length)];
+      recentIdx.push(idx);
+      if (recentIdx.length > SNIPPETS.length * 0.5) recentIdx.shift();
+      return SNIPPETS[idx];
+    }
+
+    var MIN_DIST = 6;
+
+    function tooCloseToOthers(left, top) {
+      var hr = container.getBoundingClientRect();
+      if (!hr.width || !hr.height) return false;
+      var px = left / 100 * hr.width;
+      var py = top / 100 * hr.height;
+      for (var i = 0; i < active.length; i++) {
+        var r = active[i].getBoundingClientRect();
+        var ax = r.left - hr.left;
+        var ay = r.top - hr.top;
+        var aw = Math.max(r.width, 150);
+        var ah = r.height + 6;
+        if (px < ax + aw && px + 150 > ax && py < ay + ah && py + 18 > ay) return true;
+      }
+      return false;
+    }
+
+    function pickPosition() {
+      for (var a = 0; a < 40; a++) {
+        var left = Math.random() * 82 + 2;
+        var top = Math.random() * 78 + 8;
+        var snippetW = 22;
+        var overlapsContent = (left + snippetW) > exc.l && left < exc.r &&
+                              (top + 2) > exc.t && top < exc.b;
+        if (overlapsContent) continue;
+        if (tooCloseToOthers(left, top)) continue;
+        return { left: left, top: top };
+      }
+      var rightSpace = 96 - exc.r;
+      if (rightSpace > 10) {
+        return { left: exc.r + Math.random() * (rightSpace - 2), top: Math.random() * 78 + 8 };
+      }
+      if (exc.t > 12) {
+        return { left: Math.random() * 82 + 2, top: 4 + Math.random() * (exc.t - 8) };
+      }
+      return { left: Math.random() * 82 + 2, top: exc.b + Math.random() * Math.max(4, 88 - exc.b) };
+    }
+
+    function spawn() {
+      if (active.length >= MAX_ACTIVE) { scheduleSpawn(); return; }
+
+      var text = pick();
+      var pos = pickPosition();
+      var el = document.createElement('span');
+      el.className = 'hero-snippet typing';
+      el.style.left = pos.left + '%';
+      el.style.top = pos.top + '%';
+      el.style.opacity = BASE_PEAK;
+      el.textContent = '';
+      container.appendChild(el);
+      active.push(el);
+
+      var ci = 0;
+      var speed = TYPE_MIN + Math.random() * (TYPE_MAX - TYPE_MIN);
+
+      function typeChar() {
+        if (!el.parentNode) return;
+        if (ci < text.length) {
+          ci++;
+          el.textContent = text.substring(0, ci);
+          setTimeout(typeChar, speed);
+        } else {
+          el.classList.remove('typing');
+          var linger = LINGER_MIN + Math.random() * (LINGER_MAX - LINGER_MIN);
+          setTimeout(function() { fadeOut(el); }, linger);
+        }
+      }
+
+      setTimeout(typeChar, 150);
+      scheduleSpawn();
+    }
+
+    function fadeOut(el) {
+      el.style.transition = 'opacity ' + FADE_MS + 'ms ease';
+      el.style.opacity = '0';
+      setTimeout(function() {
+        if (el.parentNode) el.parentNode.removeChild(el);
+        var i = active.indexOf(el);
+        if (i > -1) active.splice(i, 1);
+      }, FADE_MS + 50);
+    }
+
+    function scheduleSpawn() {
+      setTimeout(spawn, SPAWN_MIN + Math.random() * (SPAWN_MAX - SPAWN_MIN));
+    }
+
+    function updateProximity() {
+      var cr = container.getBoundingClientRect();
+      for (var i = 0; i < active.length; i++) {
+        var el = active[i];
+        if (parseFloat(el.style.opacity) === 0) continue;
+        var r = el.getBoundingClientRect();
+        var cx = r.left - cr.left + r.width * 0.5;
+        var cy = r.top - cr.top + r.height * 0.5;
+        var dx = cx - mouseX;
+        var dy = cy - mouseY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var t = Math.max(0, 1 - dist / RADIUS);
+        t = t * t;
+        el.style.opacity = (BASE_PEAK + t * (MAX_PEAK - BASE_PEAK)).toFixed(4);
+      }
+      rafId = null;
+    }
+
+    hero.addEventListener('mouseenter', function() {
+      spotlight.style.opacity = '1';
+    });
+
+    hero.addEventListener('mousemove', function(e) {
+      var cr = container.getBoundingClientRect();
+      mouseX = e.clientX - cr.left;
+      mouseY = e.clientY - cr.top;
+      spotlight.style.left = mouseX + 'px';
+      spotlight.style.top = mouseY + 'px';
+      if (!rafId) rafId = requestAnimationFrame(updateProximity);
+    });
+
+    hero.addEventListener('mouseleave', function() {
+      mouseX = -9999;
+      mouseY = -9999;
+      spotlight.style.opacity = '0';
+      for (var i = 0; i < active.length; i++) {
+        if (parseFloat(active[i].style.opacity) !== 0) {
+          active[i].style.transition = 'opacity 0.4s ease';
+          active[i].style.opacity = BASE_PEAK;
+        }
+      }
+    });
+
+    spawn();
+  })();
+  </script>
 </body>
 </html>
