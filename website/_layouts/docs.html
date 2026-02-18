@@ -34,6 +34,10 @@
           <a href="{{ '/docs/' | relative_url }}" class="nav-active">Docs</a>
           <a href="{{ '/about/' | relative_url }}">About</a>
           <a href="https://github.com/ambient-code" class="nav-gh">GitHub</a>
+          <button class="search-trigger" aria-label="Search" title="Search (⌘K)">
+            <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="5.5"/><line x1="11.5" y1="11.5" x2="16" y2="16"/></svg>
+            <kbd class="search-kbd">⌘K</kbd>
+          </button>
         </nav>
       </div>
     </div>
@@ -72,6 +76,8 @@
       </div>
     </div>
   </footer>
+
+  {% include search-overlay.html %}
 
   <script>
     document.querySelectorAll('.nav-section-toggle').forEach(function(btn) {

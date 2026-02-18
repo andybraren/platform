@@ -1,0 +1,25 @@
+---
+layout: null
+---
+[
+{% for post in site.posts %}
+  {
+    "title": {{ post.title | jsonify }},
+    "url": {{ post.url | relative_url | jsonify }},
+    "date": {{ post.date | date: "%B %-d, %Y" | jsonify }},
+    "category": "Blog",
+    "summary": {{ post.summary | default: post.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }},
+    "content": {{ post.content | strip_html | strip_newlines | truncate: 8000 | jsonify }}
+  }{% if forloop.last == false or site.docs.size > 0 %},{% endif %}
+{% endfor %}
+{% for doc in site.docs %}
+  {
+    "title": {{ doc.title | default: doc.slug | jsonify }},
+    "url": {{ doc.url | relative_url | jsonify }},
+    "date": "",
+    "category": "Docs",
+    "summary": {{ doc.description | default: doc.excerpt | default: "" | strip_html | strip_newlines | truncate: 200 | jsonify }},
+    "content": {{ doc.content | strip_html | strip_newlines | truncate: 8000 | jsonify }}
+  }{% unless forloop.last %},{% endunless %}
+{% endfor %}
+]
