@@ -203,7 +203,7 @@
     var spotlight = document.getElementById('heroSpotlight');
     if (!hero || !container) return;
 
-    var SNIPPETS = [
+    var SINGLES = [
       'func reconcile(ctx context.Context) error {',
       'const session = await createSession(prompt)',
       'kubectl apply -f manifests/deploy.yaml',
@@ -211,44 +211,41 @@
       "import { useQuery } from '@tanstack/react-query'",
       'def run_agent(config: AgentConfig):',
       'apiVersion: vteam.ambient-code/v1alpha1',
-      'kind: AgenticSession',
       'docker build -t runner:latest .',
       'make build-all && make deploy',
       'go test ./... -cover -race',
-      'npm run build && npm start',
       'phase: Running → Completed',
       'tokens: { input: 12847, output: 3291 }',
       'return c.JSON(http.StatusOK, result)',
       'watcher, err := client.Watch(ctx, opts)',
-      'operator.reconcile(session)',
       'claude.execute(prompt, workspace)',
-      'for event := range watcher.ResultChan() {',
       'const [data] = useSessionQuery(id)',
       'helm upgrade ambient ./charts --atomic',
-      'pip install claude-code-sdk>=0.0.23',
       'pod/runner-a8f3 ● Running',
       'session.status.phase = "Completed"',
       'git commit -m "feat: add multi-repo"',
       'cr, err := dynamicClient.Create(ctx, obj)',
-      'export default function SessionPage() {',
       'log.Printf("Session %s completed", name)',
-      'spec: { prompt: "Refactor auth module" }',
-      'resources: { limits: { memory: "2Gi" } }',
-      'ownerReferences: [{ controller: true }]',
-      'c.JSON(201, gin.H{"name": name, "uid": uid})',
-      'results.push({ status: "merged", pr: 142 })',
       'securityContext: { runAsNonRoot: true }',
-      'SELECT * FROM sessions WHERE status = done',
     ];
+
+    var MULTIS = [
+      'apiVersion: vteam.ambient-code/v1alpha1\nkind: AgenticSession\nspec: { prompt: "Refactor auth" }',
+      'const { data } = useQuery({\n  queryKey: ["sessions", project],\n  queryFn: () => fetchSessions(project),\n})',
+      'ownerRef := metav1.OwnerReference{\n  APIVersion: obj.GetAPIVersion(),\n  Controller: boolPtr(true),\n}',
+      'def execute(self, prompt):\n    result = self.sdk.run(prompt)\n    return result.output',
+      'for event := range watcher.ResultChan() {\n  obj := event.Object.(*unstructured.Unstructured)\n  handleEvent(obj)\n}',
+    ];
+
+    var spawnCount = 0;
 
     var MAX_ACTIVE = 12;
     var SPAWN_MIN = 400;
     var SPAWN_MAX = 900;
     var TYPE_MIN = 12;
     var TYPE_MAX = 25;
-    var LINGER_MIN = 200;
-    var LINGER_MAX = 700;
-    var FADE_MS = 1800;
+    var SWEEP_DELAY = 300;
+    var SWEEP_TAIL = 2200;
     var BASE_PEAK = 0.18;
     var MAX_PEAK = 0.45;
     var RADIUS = 300;
@@ -257,7 +254,6 @@
     var mouseX = -9999;
     var mouseY = -9999;
     var rafId = null;
-    var recentIdx = [];
     var contentEl = hero.querySelector('.landing-container');
     var exc = { l: 0, t: 0, r: 100, b: 100 };
 
@@ -277,15 +273,10 @@
     window.addEventListener('resize', updateExclusion);
 
     function pick() {
-      var pool = [];
-      for (var i = 0; i < SNIPPETS.length; i++) {
-        if (recentIdx.indexOf(i) === -1) pool.push(i);
-      }
-      if (!pool.length) { recentIdx = []; pool = SNIPPETS.map(function(_, i) { return i; }); }
-      var idx = pool[Math.floor(Math.random() * pool.length)];
-      recentIdx.push(idx);
-      if (recentIdx.length > SNIPPETS.length * 0.5) recentIdx.shift();
-      return SNIPPETS[idx];
+      spawnCount++;
+      var useMulti = (spawnCount % 5 === 0);
+      var src = useMulti ? MULTIS : SINGLES;
+      return src[Math.floor(Math.random() * src.length)];
     }
 
     var MIN_DIST = 6;
@@ -295,13 +286,14 @@
       if (!hr.width || !hr.height) return false;
       var px = left / 100 * hr.width;
       var py = top / 100 * hr.height;
+      var pad = 12;
       for (var i = 0; i < active.length; i++) {
         var r = active[i].getBoundingClientRect();
-        var ax = r.left - hr.left;
-        var ay = r.top - hr.top;
-        var aw = Math.max(r.width, 150);
-        var ah = r.height + 6;
-        if (px < ax + aw && px + 150 > ax && py < ay + ah && py + 18 > ay) return true;
+        var ax = r.left - hr.left - pad;
+        var ay = r.top - hr.top - pad;
+        var aw = Math.max(r.width, 180) + pad * 2;
+        var ah = Math.max(r.height, 18) + pad * 2;
+        if (px < ax + aw && px + 180 > ax && py < ay + ah && py + 18 > ay) return true;
       }
       return false;
     }
@@ -327,6 +319,12 @@
       return { left: Math.random() * 82 + 2, top: exc.b + Math.random() * Math.max(4, 88 - exc.b) };
     }
 
+    function removeEl(el) {
+      if (el.parentNode) el.parentNode.removeChild(el);
+      var i = active.indexOf(el);
+      if (i > -1) active.splice(i, 1);
+    }
+
     function spawn() {
       if (active.length >= MAX_ACTIVE) { scheduleSpawn(); return; }
 
@@ -343,6 +341,15 @@
 
       var ci = 0;
       var speed = TYPE_MIN + Math.random() * (TYPE_MAX - TYPE_MIN);
+      var typingTime = text.length * speed;
+      var sweepDur = typingTime + SWEEP_TAIL;
+
+      setTimeout(function() {
+        if (!el.parentNode) return;
+        el.style.setProperty('--sweep-dur', sweepDur + 'ms');
+        el.classList.add('sweeping');
+        setTimeout(function() { removeEl(el); }, sweepDur + 300);
+      }, SWEEP_DELAY);
 
       function typeChar() {
         if (!el.parentNode) return;
@@ -352,23 +359,11 @@
           setTimeout(typeChar, speed);
         } else {
           el.classList.remove('typing');
-          var linger = LINGER_MIN + Math.random() * (LINGER_MAX - LINGER_MIN);
-          setTimeout(function() { fadeOut(el); }, linger);
         }
       }
 
       setTimeout(typeChar, 150);
       scheduleSpawn();
-    }
-
-    function fadeOut(el) {
-      el.style.transition = 'opacity ' + FADE_MS + 'ms ease';
-      el.style.opacity = '0';
-      setTimeout(function() {
-        if (el.parentNode) el.parentNode.removeChild(el);
-        var i = active.indexOf(el);
-        if (i > -1) active.splice(i, 1);
-      }, FADE_MS + 50);
     }
 
     function scheduleSpawn() {
