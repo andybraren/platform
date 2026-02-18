@@ -20,7 +20,7 @@ How should we architect the platform to meet these requirements?
 ## Decision Drivers
 
 - **Multi-tenancy requirement:** Need strong isolation between projects
-- **Enterprise context:** Red Hat runs on OpenShift/Kubernetes
+- **Enterprise context:** Target users run on OpenShift/Kubernetes
 - **Resource management:** AI sessions have varying resource needs
 - **Security:** Must prevent cross-project access and resource interference
 - **Scalability:** Need to handle variable workload
@@ -40,7 +40,7 @@ Chosen option: "Kubernetes-native with CRDs and Operators", because:
 1. **Natural multi-tenancy:** K8s namespaces provide isolation
 2. **Declarative resources:** CRDs allow users to declare desired state
 3. **Built-in scaling:** K8s handles pod scheduling and resource allocation
-4. **Enterprise alignment:** Matches Red Hat's OpenShift expertise
+4. **Enterprise alignment:** Matches team's OpenShift expertise
 5. **Operational maturity:** Established patterns for monitoring, logging, RBAC
 
 ### Consequences

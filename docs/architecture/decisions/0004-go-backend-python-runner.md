@@ -40,7 +40,7 @@ Chosen option: "Go backend + Python runner", because:
 2. **Performance:** Low latency HTTP handling, efficient concurrency
 3. **Type safety:** Compile-time checks for K8s resources
 4. **Deployment:** Single static binary, fast startup
-5. **Team expertise:** Red Hat strong Go background
+5. **Team expertise:** Strong Go background on the team
 
 **Python for Runner:**
 

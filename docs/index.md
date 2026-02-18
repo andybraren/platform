@@ -1,97 +1,60 @@
 # Ambient Code Platform Documentation
 
-The **Ambient Code Platform** is a Kubernetes-native AI automation platform that orchestrates intelligent agentic sessions through containerized microservices. Built on OpenShift/Kubernetes, the platform enables AI-powered automation for code analysis, development tasks, and engineering workflows.
-
-## Architecture Overview
-
-The platform follows a cloud-native microservices architecture:
-
-- **Frontend**: Next.js web application with Shadcn UI for session management and monitoring
-- **Backend API**: Go-based REST API managing Kubernetes Custom Resources with multi-tenant project isolation
-- **Agentic Operator**: Kubernetes controller watching CRs and orchestrating Job execution
-- **Claude Code Runner**: Python-based job pods executing Claude Code CLI with multi-agent collaboration
-
-**Key Architectural Patterns:**
-- Projects map to Kubernetes namespaces with RBAC-based isolation
-- OpenShift OAuth integration for authentication with user bearer tokens
-- Custom Resource Definitions (AgenticSession, ProjectSettings, RFEWorkflow)
-- Operator-based reconciliation for declarative session management
+The **Ambient Code Platform** orchestrates AI-powered development sessions on Kubernetes. Submit tasks through a web UI, and ACP handles the rest: spinning up isolated runner pods, coordinating AI agents, and delivering results.
 
 ## Quick Start
 
-### Local Development
-
 ```bash
-# Install OpenShift Local (CRC)
-brew install crc
-crc setup
-
-# Clone and deploy
 git clone https://github.com/ambient-code/platform.git
 cd platform
-make dev-start
+make kind-up
+# Open http://localhost:8080
 ```
 
-See the [Getting Started Guide](user-guide/getting-started.md) for detailed setup instructions.
+See the [Getting Started Guide](getting-started.md) for a complete walkthrough.
 
-### Production Deployment
+## I want to...
 
-For production OpenShift clusters:
-- [OpenShift Deployment Guide](deployment/OPENSHIFT_DEPLOY.md)
-- [OAuth Configuration](deployment/OPENSHIFT_OAUTH.md)
-- [GitHub App Setup](integrations/GITHUB_APP_SETUP.md)
+| Goal | Guide |
+|------|-------|
+| **Try it locally** | [Getting Started](getting-started.md) |
+| **Set up a dev environment** | [Local Development](guides/local-development.md) |
+| **Deploy to production** | [Deployment Guide](guides/deployment.md) |
+| **Contribute code** | [Contributing](../CONTRIBUTING.md) |
+| **Understand the architecture** | [Architecture Overview](architecture/README.md) |
+| **Use Amber automation** | [Amber Guide](tools/amber.md) |
 
-## Key Features
+## Documentation Map
 
-**AgenticSession Management:**
-- Create AI-powered automation sessions via web UI or API
-- Interactive and headless execution modes
-- Multi-repository support for cross-repo analysis
-- Real-time status monitoring via WebSocket
-- Kubernetes Job-based execution with automatic cleanup
+### Guides
+- [Local Development](guides/local-development.md) — Kind setup, CRC for OpenShift
+- [Deployment](guides/deployment.md) — Production Kubernetes/OpenShift deployment
+- [Integrations](integrations/) — GitHub, GitLab, Google Workspace setup
 
-**Multi-Tenancy & Security:**
-- Project-scoped namespaces with RBAC isolation
-- User token-based authentication (no shared credentials)
-- Secure API key management via Kubernetes Secrets
-- Fine-grained access control through ProjectSettings
+### Architecture
+- [Overview](architecture/README.md) — System design and component interaction
+- [Diagrams](architecture/diagrams/) — Visual architecture references
+- [Decisions (ADRs)](architecture/decisions/) — Why we built it this way
 
-**Developer Experience:**
-- Modern Next.js frontend with React Query
-- RESTful API with OpenAPI documentation
-- Kubernetes-native tooling (kubectl, oc CLI)
-- Comprehensive logging and troubleshooting
+### Testing
+- [Testing Overview](testing/README.md) — Test types and strategy
+- [E2E Testing](testing/e2e-guide.md) — Cypress end-to-end tests
 
-## Documentation Structure
+### Reference
+- [Glossary](reference/glossary.md) — Key terms and concepts
+- [Model Pricing](reference/model-pricing.md) — AI model cost reference
 
-### [📘 User Guide](user-guide/index.md)
-Learn how to use the Ambient Code Platform for AI-powered automation:
-- [Getting Started](user-guide/getting-started.md) - Installation and first session
+### Tools
+- [Amber](tools/amber.md) — Automated issue-to-PR agent
 
-### [🧪 Labs](labs/index.md)
-Hands-on exercises to master the platform:
-- [Lab 1: Your First Agentic Session](labs/basic/lab-1-first-rfe.md)
-
-### [📖 Reference](reference/index.md)
-Technical reference documentation:
-- [Glossary](reference/glossary.md) - Key terms and concepts
-
-### [🚀 Deployment Guides](deployment/)
-Production deployment resources:
+### Deployment Details
 - [OpenShift Deployment](deployment/OPENSHIFT_DEPLOY.md)
-- [OAuth Setup](deployment/OPENSHIFT_OAUTH.md)
-- [GitHub App Configuration](integrations/GITHUB_APP_SETUP.md)
-- [Claude Code Runner](developer/CLAUDE_CODE_RUNNER.md)
+- [OpenShift OAuth](deployment/OPENSHIFT_OAUTH.md)
+- [Git Authentication](deployment/git-authentication.md)
+- [Langfuse Observability](deployment/langfuse.md)
 
 ## Getting Help
 
-- **Documentation Issues**: [GitHub Issues](https://github.com/ambient-code/platform/issues)
-- **Questions**: [GitHub Discussions](https://github.com/ambient-code/platform/discussions)
-- **Source Code**: [GitHub Repository](https://github.com/ambient-code/platform)
-
-## Quick Links
-
-- New to the platform? → [Getting Started](user-guide/getting-started.md)
-- Want hands-on experience? → [Lab 1](labs/basic/lab-1-first-rfe.md)
-- Need reference docs? → [Glossary](reference/glossary.md)
-- Deploying to production? → [OpenShift Guide](OPENSHIFT_DEPLOY.md)
+- [GitHub Discussions](https://github.com/ambient-code/platform/discussions) — Questions and ideas
+- [GitHub Issues](https://github.com/ambient-code/platform/issues) — Bug reports and feature requests
+- [Contributing Guide](../CONTRIBUTING.md) — How to contribute

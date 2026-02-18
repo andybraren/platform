@@ -1,15 +1,15 @@
 site_name: Ambient Code Platform Documentation
 site_description: AI-powered automation platform for intelligent agentic workflows
-site_author: Red Hat AI Engineering Team
+site_author: Ambient Code Community
 site_url: https://acp-docs.example.com
 
 repo_name: ambient-code/platform
 repo_url: https://github.com/ambient-code/platform
 edit_uri: edit/main/docs/
 
-# Exclude files from the documentation build
 exclude_docs: |
   README.md
+  archive/**
 
 theme:
   name: material
@@ -41,34 +41,43 @@ theme:
 
 nav:
   - Home: index.md
-  - User Guide:
-    - Overview: user-guide/index.md
-    - Getting Started: user-guide/getting-started.md
-    - Working with Amber: user-guide/working-with-amber.md
-    - Amber Quickstart: user-guide/amber-quickstart.md
-  - Developer Guide:
-    - Observability & Instrumentation: observability-langfuse.md
-    - Model Pricing: model-pricing.md
+  - Getting Started: getting-started.md
+  - Guides:
+    - Local Development: guides/local-development.md
+    - Deployment: guides/deployment.md
+    - Integrations:
+      - GitHub App: integrations/GITHUB_APP_SETUP.md
+      - GitLab: integrations/gitlab-integration.md
+      - Google Workspace: integrations/google-workspace.md
+    - Observability: observability/README.md
   - Architecture:
     - Overview: architecture/README.md
     - Diagrams:
       - Index: architecture/diagrams/index.md
       - System Overview: architecture/diagrams/system-overview.md
       - Session Lifecycle: architecture/diagrams/session-lifecycle.md
-  - Labs:
-    - Overview: labs/index.md
-    - Lab 1 - Your First Agentic Session: labs/basic/lab-1-first-rfe.md
+    - Decisions:
+      - Kubernetes-Native Architecture: architecture/decisions/0001-kubernetes-native-architecture.md
+      - User Token Authentication: architecture/decisions/0002-user-token-authentication.md
+      - Multi-Repo Support: architecture/decisions/0003-multi-repo-support.md
+      - Go Backend, Python Runner: architecture/decisions/0004-go-backend-python-runner.md
+      - NextJS, Shadcn, React Query: architecture/decisions/0005-nextjs-shadcn-react-query.md
   - Testing:
+    - Overview: testing/README.md
     - E2E Testing Guide: testing/e2e-guide.md
+  - Tools:
+    - Amber Automation: tools/amber.md
   - Reference:
     - Overview: reference/index.md
-    - Constitution: reference/constitution.md
     - Glossary: reference/glossary.md
-  - Deployment Guides:
-    - GitHub App Setup: GITHUB_APP_SETUP.md
-    - OpenShift Deployment: OPENSHIFT_DEPLOY.md
-    - OpenShift OAuth: OPENSHIFT_OAUTH.md
-    - Claude Code Runner: CLAUDE_CODE_RUNNER.md
+    - Model Pricing: reference/model-pricing.md
+  - Deployment:
+    - OpenShift Deployment: deployment/OPENSHIFT_DEPLOY.md
+    - OpenShift OAuth: deployment/OPENSHIFT_OAUTH.md
+    - Git Authentication: deployment/git-authentication.md
+    - Langfuse Observability: deployment/langfuse.md
+    - S3 Storage: deployment/s3-storage-configuration.md
+    - MinIO: deployment/minio-quickstart.md
 
 plugins:
   - search

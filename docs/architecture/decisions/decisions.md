@@ -1,6 +1,6 @@
 # Decision Log
 
-Chronological record of significant technical and architectural decisions for the Ambient Code Platform. For formal ADRs, see `docs/adr/`.
+Chronological record of significant technical and architectural decisions for the Ambient Code Platform. For formal ADRs, see the numbered files in this directory (e.g., `0001-kubernetes-native-architecture.md`).
 
 **Format:**
 
