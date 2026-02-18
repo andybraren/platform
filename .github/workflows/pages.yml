@@ -32,13 +32,20 @@ jobs:
         run: |
           cp -r docs website/_docs
           rm -rf website/_docs/archive
+          find website/_docs -name '*.mmd' -delete
 
-          # Add permalink front matter to index.md so it serves at /docs/
-          { echo '---'; echo 'permalink: /docs/'; echo '---'; echo; cat website/_docs/index.md; } > website/_docs/index.md.tmp
-          mv website/_docs/index.md.tmp website/_docs/index.md
+          # Prepend YAML front matter so Jekyll renders .md files as HTML
+          for f in $(find website/_docs -name '*.md'); do
+            if ! head -1 "$f" | grep -q '^---$'; then
+              printf -- '---\n---\n\n' | cat - "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+            fi
+          done
 
-          # Rewrite internal .md links to directory-style URLs for Jekyll
-          find website/_docs -name '*.md' -exec sed -i'' -E \
+          # Set permalink on docs index so it serves at /docs/
+          sed -i '2i permalink: /docs/' website/_docs/index.md
+
+          # Rewrite .md links to directory-style URLs for Jekyll routing
+          find website/_docs -name '*.md' -exec sed -i -E \
             's|\]\(([^)]*[^/])\.md([#)])|\]\(\1/\2|g; s|\]\(([^)]*[^/])\.md\)|\]\(\1/\)|g' {} +
 
       # ── Jekyll (full site: landing + blog + docs) ──
