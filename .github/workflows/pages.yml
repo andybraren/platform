@@ -38,7 +38,7 @@ jobs:
           working-directory: website
 
       - name: Build Jekyll site
-        run: bundle exec jekyll build
+        run: bundle exec jekyll build --baseurl "/${{ github.event.repository.name }}"
         working-directory: website
 
       # ── MkDocs (documentation) ──
