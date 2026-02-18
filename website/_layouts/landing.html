@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include head.html %}
+</head>
+<body class="landing-body">
+
+  <header class="landing-header">
+    <div class="landing-container">
+      <div class="header-inner">
+        <a href="{{ '/' | relative_url }}" class="logo">
+          <span class="logo-text">ambient-code</span><span class="logo-dot">.ai</span>
+        </a>
+        <nav>
+          <a href="{{ '/blog/' | relative_url }}">Blog</a>
+          <a href="{{ '/docs/' | relative_url }}">Docs</a>
+          <a href="{{ '/about/' | relative_url }}">About</a>
+          <a href="https://github.com/ambient-code" class="nav-gh">GitHub</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="landing-container">
+        <p class="hero-label">// open source AI automation platform</p>
+        <h1 class="hero-title">
+          <span class="hero-title-ambient">Ambient</span> Code Platform
+        </h1>
+        <p class="hero-subtitle">
+          Orchestrate intelligent agentic sessions through Kubernetes-native
+          microservices. Ship features, research, and analysis with AI agents
+          that work while you sleep.
+        </p>
+        <div class="hero-actions">
+          <a href="{{ '/docs/' | relative_url }}" class="btn btn-primary">Get Started</a>
+          <a href="https://github.com/ambient-code/platform" class="btn btn-outline">View on GitHub</a>
+        </div>
+        <div class="hero-code">
+          <span class="code-prompt">$</span> make kind-up <span class="code-comment"># cluster running at localhost:8080</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="capabilities">
+      <div class="landing-container">
+        <h2 class="section-label">Capabilities</h2>
+        <div class="cap-grid">
+
+          <div class="cap-card">
+            <div class="cap-icon">&#9655;</div>
+            <h3>Agentic Sessions</h3>
+            <p>Define a prompt, point at your repos, and let Claude Code execute. Batch or interactive, with real-time status via WebSocket.</p>
+          </div>
+
+          <div class="cap-card">
+            <div class="cap-icon">&#8644;</div>
+            <h3>Multi-Repo Support</h3>
+            <p>Operate across multiple repositories simultaneously. Per-repo input/output configuration with branch and fork targeting.</p>
+          </div>
+
+          <div class="cap-card">
+            <div class="cap-icon">&#9881;</div>
+            <h3>Kubernetes Native</h3>
+            <p>Custom Resources, an Operator, and Job-based execution. Sessions are CRs. The platform speaks Kubernetes end to end.</p>
+          </div>
+
+          <div class="cap-card">
+            <div class="cap-icon">&#128274;</div>
+            <h3>Multi-Tenant Isolation</h3>
+            <p>Project-scoped namespaces with RBAC enforcement. User tokens flow through every API call. No elevated shortcuts.</p>
+          </div>
+
+          <div class="cap-card">
+            <div class="cap-icon">&#9889;</div>
+            <h3>Amber Background Agent</h3>
+            <p>Automate fixes, refactoring, and test coverage through GitHub Issues. Label an issue, get a PR. No IDE required.</p>
+          </div>
+
+          <div class="cap-card">
+            <div class="cap-icon">&#128200;</div>
+            <h3>Observability</h3>
+            <p>Privacy-first Langfuse integration. Track token usage, costs, and model performance with full message redaction by default.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="architecture-section">
+      <div class="landing-container">
+        <h2 class="section-label">How it works</h2>
+        <div class="arch-flow">
+          <div class="arch-step">
+            <span class="arch-num">1</span>
+            <div>
+              <h4>Create Session</h4>
+              <p>Define your prompt and target repos via the web UI or API.</p>
+            </div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-step">
+            <span class="arch-num">2</span>
+            <div>
+              <h4>Operator Reconciles</h4>
+              <p>The Kubernetes operator watches the CR and spawns a Job pod.</p>
+            </div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-step">
+            <span class="arch-num">3</span>
+            <div>
+              <h4>Agent Executes</h4>
+              <p>Claude Code runs in the pod, commits results, and updates status.</p>
+            </div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-step">
+            <span class="arch-num">4</span>
+            <div>
+              <h4>Review &amp; Ship</h4>
+              <p>Results surface in the UI. Review the PR, merge, and move on.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="landing-container">
+        <div class="cta-box">
+          <h2>Ready to start?</h2>
+          <p>Read the docs, spin up a local cluster, or dive into the blog for the thinking behind ambient code.</p>
+          <div class="cta-links">
+            <a href="{{ '/docs/' | relative_url }}" class="btn btn-primary">Documentation</a>
+            <a href="{{ '/blog/' | relative_url }}" class="btn btn-outline">Blog</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="landing-container">
+      <div class="footer-inner">
+        <span class="footer-sig">ambient-code.ai</span>
+        <a href="https://github.com/ambient-code">github.com/ambient-code</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

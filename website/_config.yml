@@ -3,7 +3,7 @@ description: "// breakthrough software engineering concepts"
 url: "https://ambient-code.ai"
 baseurl: ""
 
-permalink: /posts/:slug/
+permalink: /blog/posts/:slug/
 
 defaults:
   - scope:
