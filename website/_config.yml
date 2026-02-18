@@ -5,12 +5,22 @@ baseurl: ""
 
 permalink: /blog/posts/:slug/
 
+collections:
+  docs:
+    output: true
+    permalink: /docs/:path/
+
 defaults:
   - scope:
       path: ""
       type: "posts"
     values:
       layout: "post"
+  - scope:
+      path: ""
+      type: "docs"
+    values:
+      layout: "docs"
   - scope:
       path: ""
     values:

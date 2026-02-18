@@ -1,0 +1,49 @@
+{% for item in include.items %}
+  {% if item.children %}
+    {% assign has_active_child = false %}
+    {% for child in item.children %}
+      {% if child.path != nil %}
+        {% if child.path == "" %}
+          {% assign child_url = '/docs/' %}
+        {% else %}
+          {% assign child_url = '/docs/' | append: child.path | append: '/' %}
+        {% endif %}
+        {% if page.url == child_url %}
+          {% assign has_active_child = true %}
+        {% endif %}
+      {% endif %}
+      {% if child.children %}
+        {% for grandchild in child.children %}
+          {% if grandchild.path != nil %}
+            {% if grandchild.path == "" %}
+              {% assign gc_url = '/docs/' %}
+            {% else %}
+              {% assign gc_url = '/docs/' | append: grandchild.path | append: '/' %}
+            {% endif %}
+            {% if page.url == gc_url %}
+              {% assign has_active_child = true %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+    <li class="nav-section{% if has_active_child %} nav-section-open{% endif %}">
+      <button class="nav-section-toggle{% if has_active_child %} active{% endif %}" aria-expanded="{{ has_active_child }}">
+        <span>{{ item.title }}</span>
+        <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12"><path d="M4.5 2L8.5 6L4.5 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <ul class="nav-children{% if has_active_child %} nav-children-open{% endif %}">
+        {% include docs_nav_items.html items=item.children %}
+      </ul>
+    </li>
+  {% elsif item.path != nil %}
+    {% if item.path == "" %}
+      {% assign item_url = '/docs/' %}
+    {% else %}
+      {% assign item_url = '/docs/' | append: item.path | append: '/' %}
+    {% endif %}
+    <li>
+      <a href="{{ item_url | relative_url }}" class="nav-link{% if page.url == item_url %} nav-link-active{% endif %}">{{ item.title }}</a>
+    </li>
+  {% endif %}
+{% endfor %}

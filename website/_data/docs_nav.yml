@@ -1,0 +1,83 @@
+- title: Home
+  path: ""
+
+- title: Getting Started
+  path: getting-started
+
+- title: Guides
+  children:
+    - title: Local Development
+      path: guides/local-development
+    - title: Deployment
+      path: guides/deployment
+    - title: Integrations
+      children:
+        - title: GitHub App
+          path: integrations/GITHUB_APP_SETUP
+        - title: GitLab
+          path: integrations/gitlab-integration
+        - title: Google Workspace
+          path: integrations/google-workspace
+    - title: Observability
+      path: observability/README
+
+- title: Architecture
+  children:
+    - title: Overview
+      path: architecture/README
+    - title: Diagrams
+      children:
+        - title: Index
+          path: architecture/diagrams/index
+        - title: System Overview
+          path: architecture/diagrams/system-overview
+        - title: Session Lifecycle
+          path: architecture/diagrams/session-lifecycle
+    - title: Decisions
+      children:
+        - title: Kubernetes-Native Architecture
+          path: architecture/decisions/0001-kubernetes-native-architecture
+        - title: User Token Authentication
+          path: architecture/decisions/0002-user-token-authentication
+        - title: Multi-Repo Support
+          path: architecture/decisions/0003-multi-repo-support
+        - title: Go Backend, Python Runner
+          path: architecture/decisions/0004-go-backend-python-runner
+        - title: NextJS, Shadcn, React Query
+          path: architecture/decisions/0005-nextjs-shadcn-react-query
+
+- title: Testing
+  children:
+    - title: Overview
+      path: testing/README
+    - title: E2E Testing Guide
+      path: testing/e2e-guide
+
+- title: Tools
+  children:
+    - title: Amber Automation
+      path: tools/amber
+
+- title: Reference
+  children:
+    - title: Overview
+      path: reference/index
+    - title: Glossary
+      path: reference/glossary
+    - title: Model Pricing
+      path: reference/model-pricing
+
+- title: Deployment
+  children:
+    - title: OpenShift Deployment
+      path: deployment/OPENSHIFT_DEPLOY
+    - title: OpenShift OAuth
+      path: deployment/OPENSHIFT_OAUTH
+    - title: Git Authentication
+      path: deployment/git-authentication
+    - title: Langfuse Observability
+      path: deployment/langfuse
+    - title: S3 Storage
+      path: deployment/s3-storage-configuration
+    - title: MinIO
+      path: deployment/minio-quickstart
